@@ -2,7 +2,7 @@
   "name": "rentflow",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "dev": "next dev", "build": "next build", "start": "next start", "lint": "next lint", "db:generate": "prisma generate", "db:push": "prisma db push", "db:seed": "tsx prisma/seed.ts" },
+  "scripts": { "dev": "next dev", "build": "prisma generate && next build", "start": "next start", "lint": "next lint", "db:generate": "prisma generate", "db:push": "prisma db push", "db:seed": "tsx prisma/seed.ts" },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.12.0",
