@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { Role } from "@prisma/client";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
+
+export async function GET(request:Request){const url=new URL(request.url);const code=url.searchParams.get("code");const origin=url.origin;if(!code)return NextResponse.redirect(`${origin}/login?error=missing_code`);const supabase=await createSupabaseServerClient();const {data,error}=await supabase.auth.exchangeCodeForSession(code);const email=data.user?.email;if(error||!data.user||!email)return NextResponse.redirect(`${origin}/login?error=sign_in_failed`);const authUser=data.user;let account=await prisma.user.findUnique({where:{authId:authUser.id}});if(!account){const member=await prisma.member.findUnique({where:{email}});const adminEmail=process.env.ADMIN_EMAIL?.toLowerCase();const isAdmin=email.toLowerCase()===adminEmail;if(!member&&!isAdmin){await supabase.auth.signOut();return NextResponse.redirect(`${origin}/login?error=not_approved`)};account=await prisma.user.create({data:{authId:authUser.id,email,role:isAdmin?Role.ADMIN:Role.MEMBER,member:member?{connect:{id:member.id}}:undefined}})}return NextResponse.redirect(origin)}

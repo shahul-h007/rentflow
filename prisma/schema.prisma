@@ -55,6 +55,7 @@ model Member {
   id String @id @default(uuid())
   userId String? @unique @map("user_id")
   name String
+  email String? @unique
   phone String?
   photoUrl String? @map("photo_url")
   joinedAt DateTime @default(now()) @map("joined_at")
@@ -114,6 +115,7 @@ model Utility {
   paidAt DateTime? @map("paid_at")
   status PaymentStatus @default(PENDING)
   attachmentUrl String? @map("attachment_url")
+  createdAt DateTime @default(now()) @map("created_at")
   month Month @relation(fields:[monthId],references:[id],onDelete:Cascade)
   paidBy Member? @relation("utility_paid_by",fields:[paidById],references:[id])
   payments UtilityPayment[]
