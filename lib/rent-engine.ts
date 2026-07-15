@@ -1,0 +1,3 @@
+import { splitEqually } from "./money";
+export function calculateRentLedger(rent:number,activeMemberIds:string[],payments:Record<string,number>,carryForward:Record<string,number>={}){return splitEqually(rent,activeMemberIds).map(({memberId,amount})=>{const due=amount+(carryForward[memberId]??0),paid=payments[memberId]??0;return {memberId,amountDue:due,amountPaid:paid,balance:due-paid,status:paid>=due?"PAID":paid>0?"PARTIAL":"PENDING"} })}
+export function createCoverageDebts(missingMemberId:string,contributors:string[],missingShare:number){return splitEqually(missingShare,contributors).map(({memberId,amount})=>({debtorId:missingMemberId,creditorId:memberId,amount,reason:"Rent coverage"}))}

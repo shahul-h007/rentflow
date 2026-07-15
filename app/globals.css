@@ -1,0 +1,5 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{color-scheme:light;background:#f7f7f2;color:#10201e}*{box-sizing:border-box}body{margin:0;font-family:Georgia,"Times New Roman",serif;background:radial-gradient(circle at 75% -20%,#c8f1df 0,transparent 34rem),#f7f7f2}button,input,select{font:inherit}button{cursor:pointer}.display{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;letter-spacing:.01em}.grain{background-image:linear-gradient(115deg,rgba(255,255,255,.55),transparent 42%)}

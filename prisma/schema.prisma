@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+enum MonthStatus {
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+enum PaymentStatus {
+  PENDING
+  PAID
+  PARTIAL
+  WAIVED
+  BORROWED
+  TRANSFERRED
+  CANCELLED
+  REFUNDED
+}
+enum SplitType {
+  EQUAL
+  PERCENTAGE
+  FIXED
+  SELECTED
+  CUSTOM
+}
+enum DebtStatus {
+  OPEN
+  SETTLED
+  CANCELLED
+}
+
+model User {
+  id String @id @default(uuid())
+  authId String @unique @map("auth_id")
+  email String @unique
+  role Role @default(MEMBER)
+  member Member?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("users")
+}
+
+model Member {
+  id String @id @default(uuid())
+  userId String? @unique @map("user_id")
+  name String
+  phone String?
+  photoUrl String? @map("photo_url")
+  joinedAt DateTime @default(now()) @map("joined_at")
+  active Boolean @default(true)
+  user User? @relation(fields:[userId],references:[id])
+  rentPayments RentPayment[]
+  utilityPayments UtilityPayment[]
+  utilitiesPaid Utility[] @relation("utility_paid_by")
+  expenses Expense[]
+  expenseSplits ExpenseSplit[]
+  debtors Debt[] @relation("debtor")
+  creditors Debt[] @relation("creditor")
+  @@index([active])
+  @@map("members")
+}
+
+model Month {
+  id String @id @default(uuid())
+  startsOn DateTime @unique @map("starts_on")
+  endsOn DateTime @map("ends_on")
+  rent Int
+  status MonthStatus @default(OPEN)
+  closedAt DateTime? @map("closed_at")
+  rentPayments RentPayment[]
+  utilities Utility[]
+  expenses Expense[]
+  @@index([status])
+  @@map("months")
+}
+
+model RentPayment {
+  id String @id @default(uuid())
+  monthId String @map("month_id")
+  memberId String @map("member_id")
+  amountDue Int @map("amount_due")
+  amountPaid Int @default(0) @map("amount_paid")
+  carryForward Int @default(0) @map("carry_forward")
+  status PaymentStatus @default(PENDING)
+  method String?
+  reference String?
+  paidAt DateTime? @map("paid_at")
+  month Month @relation(fields:[monthId],references:[id],onDelete:Cascade)
+  member Member @relation(fields:[memberId],references:[id])
+  @@unique([monthId,memberId])
+  @@index([memberId,status])
+  @@map("rent_payments")
+}
+
+model Utility {
+  id String @id @default(uuid())
+  monthId String @map("month_id")
+  name String
+  amount Int
+  paidById String? @map("paid_by_id")
+  splitType SplitType @default(EQUAL) @map("split_type")
+  dueDate DateTime? @map("due_date")
+  paidAt DateTime? @map("paid_at")
+  status PaymentStatus @default(PENDING)
+  attachmentUrl String? @map("attachment_url")
+  month Month @relation(fields:[monthId],references:[id],onDelete:Cascade)
+  paidBy Member? @relation("utility_paid_by",fields:[paidById],references:[id])
+  payments UtilityPayment[]
+  @@index([monthId,status])
+  @@map("utilities")
+}
+
+model UtilityPayment {
+  id String @id @default(uuid())
+  utilityId String @map("utility_id")
+  memberId String @map("member_id")
+  amountDue Int @map("amount_due")
+  amountPaid Int @default(0) @map("amount_paid")
+  status PaymentStatus @default(PENDING)
+  utility Utility @relation(fields:[utilityId],references:[id],onDelete:Cascade)
+  member Member @relation(fields:[memberId],references:[id])
+  @@unique([utilityId,memberId])
+  @@map("utility_payments")
+}
+
+model Expense {
+  id String @id @default(uuid())
+  monthId String @map("month_id")
+  paidById String @map("paid_by_id")
+  title String
+  amount Int
+  splitType SplitType @default(EQUAL) @map("split_type")
+  notes String?
+  receiptUrl String? @map("receipt_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  month Month @relation(fields:[monthId],references:[id])
+  paidBy Member @relation(fields:[paidById],references:[id])
+  splits ExpenseSplit[]
+  @@index([monthId])
+  @@map("expenses")
+}
+
+model ExpenseSplit {
+  id String @id @default(uuid())
+  expenseId String @map("expense_id")
+  memberId String @map("member_id")
+  amount Int
+  expense Expense @relation(fields:[expenseId],references:[id],onDelete:Cascade)
+  member Member @relation(fields:[memberId],references:[id])
+  @@unique([expenseId,memberId])
+  @@map("expense_splits")
+}
+
+model Debt {
+  id String @id @default(uuid())
+  debtorId String @map("debtor_id")
+  creditorId String @map("creditor_id")
+  amount Int
+  settledAmount Int @default(0) @map("settled_amount")
+  reason String
+  createdAt DateTime @default(now()) @map("created_at")
+  settledAt DateTime? @map("settled_at")
+  status DebtStatus @default(OPEN)
+  debtor Member @relation("debtor",fields:[debtorId],references:[id])
+  creditor Member @relation("creditor",fields:[creditorId],references:[id])
+  @@index([debtorId,status])
+  @@map("debts")
+}
+
+model Setting {
+  id String @id @default(uuid())
+  key String @unique
+  value Json
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("settings")
+}
+
+model ActivityLog {
+  id String @id @default(uuid())
+  actorId String? @map("actor_id")
+  entity String
+  entityId String @map("entity_id")
+  action String
+  oldValue Json? @map("old_value")
+  newValue Json? @map("new_value")
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([entity,entityId])
+  @@map("activity_logs")
+}
