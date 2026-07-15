@@ -46,6 +46,7 @@ model User {
   email String @unique
   role Role @default(MEMBER)
   member Member?
+  lastLoginAt DateTime? @map("last_login_at")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   @@map("users")
