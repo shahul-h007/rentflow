@@ -1,6 +1,6 @@
 # RentFlow
 
-RentFlow is a shared-house rent, utilities, expenses, and settlement PWA built with Next.js 15, Supabase, and Prisma.
+RentFlow is a shared-house rent, utilities, expenses, and settlement PWA built with Next.js 16, Supabase, and Prisma.
 
 ## Start locally
 
