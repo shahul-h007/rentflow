@@ -64,7 +64,7 @@ export async function GET() {
     });
 
     // 4. Fetch Settlements (Debts)
-    let debts = [];
+    let debts: any[] = [];
     if (account.role === Role.ADMIN) {
       debts = await prisma.debt.findMany({
         where: { status: "OPEN" },
