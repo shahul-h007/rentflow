@@ -98,20 +98,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 valueColor: AlwaysStoppedAnimation(Color(0xFF1E4620)),
               ),
             )
-          : dashboard.currentMonth == null
+          : dashboard.errorMessage != null
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: Text(
-                      "No active month has been created by the administrator.",
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        color: const Color(0xFF8E8E93),
-                      ),
-                      textAlign: TextAlign.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48, color: Color(0xFF8B2D21)),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Error: ${dashboard.errorMessage}",
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            color: const Color(0xFF8B2D21),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => dashboard.loadDashboard(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1E4620),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text("Retry"),
+                        ),
+                      ],
                     ),
                   ),
                 )
+              : dashboard.currentMonth == null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24.0),
+                        child: Text(
+                          "No active month has been created by the administrator.",
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            color: const Color(0xFF8E8E93),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
               : RefreshIndicator(
                   onRefresh: () => dashboard.loadDashboard(silent: true),
                   color: const Color(0xFF1E4620),
