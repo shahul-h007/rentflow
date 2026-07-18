@@ -868,7 +868,7 @@ export function Dashboard() {
                           <p className="font-label-sm text-label-sm text-on-surface-variant">
                             via {act.method} • {formatDate(act.paidAt)}
                           </p>
-                          {act.payer && act.payer.id !== act.rentPayment?.memberId && (
+                          {act.payer && act.payer.id !== act.rentPayment?.member.id && (
                             <p className="text-[10px] text-secondary font-bold">Paid on behalf by {act.payer.name}</p>
                           )}
                         </div>
@@ -1048,7 +1048,7 @@ export function Dashboard() {
                               <p className="text-label-sm font-label-sm text-on-surface-variant">
                                 submitted {formatMoney(tx.amount)} via {tx.method}
                               </p>
-                              {tx.payer && tx.payer.id !== tx.rentPayment?.memberId && (
+                              {tx.payer && tx.payer.id !== tx.rentPayment?.member.id && (
                                 <p className="text-xs text-secondary font-bold">Paid on behalf by {tx.payer.name}</p>
                               )}
                               {tx.reference && (
@@ -1325,7 +1325,7 @@ export function Dashboard() {
                         <p className="font-label-sm text-label-sm text-on-surface-variant">
                           via {tx.method} • {formatDate(tx.paidAt)}
                         </p>
-                        {tx.payer && tx.payer.id !== tx.rentPayment?.memberId && (
+                        {tx.payer && tx.payer.id !== tx.rentPayment?.member.id && (
                           <p className="text-[10px] text-secondary font-bold">Paid on behalf by {tx.payer.name}</p>
                         )}
                         {tx.reference && <p className="text-xs text-on-surface-variant mt-0.5">Ref: {tx.reference}</p>}
