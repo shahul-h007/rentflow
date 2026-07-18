@@ -86,7 +86,7 @@ export async function GET() {
     }
 
     // 5. Fetch Pending Confirmations (Admin only)
-    let pendingConfirmations = [];
+    let pendingConfirmations: any[] = [];
     if (account.role === Role.ADMIN) {
       pendingConfirmations = await prisma.rentPaymentTransaction.findMany({
         where: { status: "SUBMITTED" },
