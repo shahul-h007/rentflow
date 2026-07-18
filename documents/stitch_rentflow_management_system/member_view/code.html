@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>RentFlow | Members</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#f2f4f6",
+                    "on-tertiary-fixed-variant": "#3a485b",
+                    "on-surface-variant": "#3c4a42",
+                    "outline": "#6c7a71",
+                    "on-background": "#191c1e",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-tertiary-container": "#2c3a4d",
+                    "tertiary-fixed-dim": "#b9c7df",
+                    "secondary": "#4648d4",
+                    "outline-variant": "#bbcabf",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-secondary-container": "#fffbff",
+                    "on-secondary": "#ffffff",
+                    "background": "#f7f9fb",
+                    "on-secondary-fixed": "#07006c",
+                    "primary-fixed": "#6ffbbe",
+                    "inverse-surface": "#2d3133",
+                    "surface-tint": "#006c49",
+                    "surface-variant": "#e0e3e5",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#005236",
+                    "inverse-primary": "#4edea3",
+                    "surface-dim": "#d8dadc",
+                    "primary-fixed-dim": "#4edea3",
+                    "secondary-container": "#6063ee",
+                    "surface-container-high": "#e6e8ea",
+                    "secondary-fixed": "#e1e0ff",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-tertiary-fixed": "#0d1c2e",
+                    "error": "#ba1a1a",
+                    "primary-container": "#10b981",
+                    "error-container": "#ffdad6",
+                    "surface-container": "#eceef0",
+                    "surface-bright": "#f7f9fb",
+                    "tertiary-container": "#95a4bb",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#191c1e",
+                    "on-secondary-fixed-variant": "#2f2ebe",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#515f74",
+                    "on-primary-container": "#00422b",
+                    "secondary-fixed-dim": "#c0c1ff",
+                    "surface": "#f7f9fb",
+                    "primary": "#006c49",
+                    "tertiary-fixed": "#d5e3fc",
+                    "on-primary-fixed": "#002113"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "grid_gutter": "24px",
+                    "xl": "32px",
+                    "xs": "4px",
+                    "grid_columns_desktop": "12",
+                    "base": "4px",
+                    "2xl": "48px",
+                    "container_max_width": "1200px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "numeric-data": ["Inter"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "numeric-data": ["20px", {"lineHeight": "24px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #f7f9fb; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); }
+        .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 sticky z-40 bg-surface border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-container_max_width mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">My Rent</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full" data-icon="notifications">notifications</button>
+</div>
+</div>
+</header>
+<main class="max-w-md mx-auto px-lg pt-lg pb-32 space-y-lg">
+<!-- Status Card -->
+<section class="relative overflow-hidden rounded-xl border border-outline-variant bg-surface-container-lowest p-lg shadow-sm">
+<div class="flex justify-between items-start mb-md">
+<div>
+<p class="font-label-md text-label-md text-on-surface-variant">Billing Period</p>
+<h2 class="font-headline-md text-headline-md font-bold">July 2026</h2>
+</div>
+<span class="px-sm py-1 bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm rounded-full">Partial</span>
+</div>
+<div class="space-y-sm mb-lg">
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-label-md text-label-md">Rent Due</span>
+<span class="font-numeric-data text-numeric-data">₹3,000</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-label-md text-label-md text-primary">Paid</span>
+<span class="font-numeric-data text-numeric-data text-primary">₹1,000</span>
+</div>
+<div class="w-full h-2 bg-surface-container-high rounded-full overflow-hidden flex">
+<div class="bg-primary h-full" style="width: 33.33%"></div>
+<div class="bg-outline-variant h-full" style="width: 66.66%"></div>
+</div>
+<div class="flex justify-between items-center pt-sm border-t border-outline-variant mt-sm">
+<span class="font-label-md text-label-md font-bold">Balance</span>
+<span class="font-numeric-data text-numeric-data text-error">₹2,000</span>
+</div>
+</div>
+<button class="w-full bg-primary-container text-on-primary-container font-headline-md text-headline-md py-lg rounded-xl active:scale-[0.98] transition-transform flex justify-center items-center gap-sm">
+                Pay Rent
+                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</section>
+<!-- Settlements -->
+<section>
+<div class="flex items-center justify-between mb-sm px-1">
+<h3 class="font-label-md text-label-md font-bold text-on-surface-variant uppercase tracking-wider">Settlements</h3>
+<span class="material-symbols-outlined text-outline" data-icon="info" style="font-size: 18px;">info</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed-dim flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a young male roommate named Arjun, smiling in a modern living room setting with soft natural light, reflecting a friendly and communal shared living atmosphere for RentFlow. The image uses a clean, high-utility financial app aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDqlmbVIX2j7_pKwLmqm8B8_Y1xUcuUxJPsJhuapdbo6xFIVTZBT6mKmIGG6s8SlJLLHxf8i1sNm6TrTj5xFtKHvbhw8P8bL0aSvBz0OOlQYM9hmOZPezn7vb3D5YMmQ0_VLYcFTlklmhZ6ZiFwWDhTUyFXGi3VLn1uIRZFWiR9-JQ8X0h7tkX7F7OVpKRKrQaBLKFR3xALQvwBrD50iPT-0jGwQ3VQOPBsyOOoJjNGnRmAY8ul11-lA"/>
+</div>
+<div>
+<p class="font-body-md text-body-md">You owe <span class="font-bold">Arjun</span></p>
+<p class="font-numeric-data text-numeric-data text-error">₹800</p>
+</div>
+</div>
+<button class="bg-surface-container text-primary font-label-md text-label-md px-lg py-sm rounded-full border border-primary hover:bg-primary-container hover:text-on-primary-container transition-colors">
+                    Pay Now
+                </button>
+</div>
+</section>
+<!-- Payment History -->
+<section>
+<div class="flex items-center justify-between mb-sm px-1">
+<h3 class="font-label-md text-label-md font-bold text-on-surface-variant uppercase tracking-wider">History</h3>
+<button class="text-primary font-label-sm text-label-sm">See All</button>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl divide-y divide-outline-variant shadow-sm overflow-hidden">
+<!-- Transaction Item -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors cursor-pointer">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-fixed-variant" data-icon="payments">payments</span>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold">Cash Payment</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">July 2, 2026</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-numeric-data text-numeric-data text-primary">₹1,000</p>
+<p class="font-label-sm text-label-sm text-primary">Verified</p>
+</div>
+</div>
+<!-- Empty state or next items could go here -->
+<div class="p-md text-center bg-surface-container-low/30 py-lg">
+<p class="font-label-sm text-label-sm text-outline italic">Only 1 transaction this month</p>
+</div>
+</div>
+</section>
+<!-- Expense Distribution Visualization -->
+<section class="rounded-xl bg-on-tertiary-fixed-variant p-lg text-on-tertiary shadow-lg">
+<h3 class="font-label-md text-label-md mb-md">Roommate Split</h3>
+<div class="flex items-center gap-sm">
+<div class="h-4 flex-1 bg-primary rounded-l-full"></div>
+<div class="h-4 flex-1 bg-secondary"></div>
+<div class="h-4 flex-1 bg-tertiary-fixed-dim rounded-r-full"></div>
+</div>
+<div class="flex justify-between mt-md font-label-sm text-label-sm">
+<div class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-primary"></span> You (₹1k)</div>
+<div class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-secondary"></span> Arjun (₹1k)</div>
+<div class="flex items-center gap-xs"><span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim"></span> Sam (₹1k)</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl border-t border-outline-variant shadow-md bg-surface-container-lowest safe-pb">
+<div class="flex justify-around items-center w-full h-16 bg-surface-container-lowest pb-safe">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-transform active:scale-90 duration-200 px-4 py-1">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 transition-transform active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-sm text-label-sm">Members</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-transform active:scale-90 duration-200 px-4 py-1">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-sm text-label-sm">Payments</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-transform active:scale-90 duration-200 px-4 py-1">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-sm text-label-sm">History</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-transform active:scale-90 duration-200 px-4 py-1">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</button>
+</div>
+</nav>
+<!-- Micro-interaction for Pay Rent Button -->
+<script>
+        document.querySelector('button.bg-primary-container').addEventListener('click', function() {
+            this.classList.add('scale-95');
+            setTimeout(() => {
+                this.classList.remove('scale-95');
+                alert('Initializing payment gateway for ₹2,000...');
+            }, 150);
+        });
+    </script>
+</body></html>

@@ -61,6 +61,8 @@ model Member {
   photoUrl String? @map("photo_url")
   joinedAt DateTime @default(now()) @map("joined_at")
   active Boolean @default(true)
+  houseId String? @map("house_id")
+  house House? @relation(fields:[houseId],references:[id])
   user User? @relation(fields:[userId],references:[id])
   rentPayments RentPayment[]
   utilityPayments UtilityPayment[]
@@ -69,6 +71,7 @@ model Member {
   expenseSplits ExpenseSplit[]
   debtors Debt[] @relation("debtor")
   creditors Debt[] @relation("creditor")
+  rentTransactions RentPaymentTransaction[] @relation("rent_transaction_payer")
   @@index([active])
   @@map("members")
 }
@@ -80,6 +83,8 @@ model Month {
   rent Int
   status MonthStatus @default(OPEN)
   closedAt DateTime? @map("closed_at")
+  houseId String? @map("house_id")
+  house House? @relation(fields:[houseId],references:[id])
   rentPayments RentPayment[]
   utilities Utility[]
   expenses Expense[]
@@ -100,6 +105,7 @@ model RentPayment {
   paidAt DateTime? @map("paid_at")
   month Month @relation(fields:[monthId],references:[id],onDelete:Cascade)
   member Member @relation(fields:[memberId],references:[id])
+  transactions RentPaymentTransaction[]
   @@unique([monthId,memberId])
   @@index([memberId,status])
   @@map("rent_payments")
@@ -200,4 +206,35 @@ model ActivityLog {
   createdAt DateTime @default(now()) @map("created_at")
   @@index([entity,entityId])
   @@map("activity_logs")
+}
+
+model House {
+  id String @id @default(uuid())
+  name String
+  rent Int
+  dueDate Int @default(5) @map("due_date")
+  currency String @default("INR")
+  upiId String? @map("upi_id")
+  ownerName String? @map("owner_name")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  members Member[]
+  months Month[]
+  @@map("houses")
+}
+
+model RentPaymentTransaction {
+  id String @id @default(uuid())
+  rentPaymentId String @map("rent_payment_id")
+  amount Int
+  method String
+  reference String?
+  screenshotUrl String? @map("screenshot_url")
+  status String @default("SUBMITTED") // SUBMITTED, CONFIRMED, REJECTED
+  paidAt DateTime @default(now()) @map("paid_at")
+  verifiedAt DateTime? @map("verified_at")
+  payerId String? @map("payer_id")
+  payer Member? @relation("rent_transaction_payer", fields:[payerId], references:[id])
+  rentPayment RentPayment @relation(fields:[rentPaymentId],references:[id],onDelete:Cascade)
+  @@map("rent_payment_transactions")
 }

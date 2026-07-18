@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>RentFlow Owner Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes subtle-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+        .animate-subtle { animation: subtle-pulse 3s ease-in-out infinite; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-fixed-variant": "#3a485b",
+                        "on-surface-variant": "#3c4a42",
+                        "outline": "#6c7a71",
+                        "on-background": "#191c1e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-tertiary-container": "#2c3a4d",
+                        "tertiary-fixed-dim": "#b9c7df",
+                        "secondary": "#4648d4",
+                        "outline-variant": "#bbcabf",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-secondary-container": "#fffbff",
+                        "on-secondary": "#ffffff",
+                        "background": "#f7f9fb",
+                        "on-secondary-fixed": "#07006c",
+                        "primary-fixed": "#6ffbbe",
+                        "inverse-surface": "#2d3133",
+                        "surface-tint": "#006c49",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#005236",
+                        "inverse-primary": "#4edea3",
+                        "surface-dim": "#d8dadc",
+                        "primary-fixed-dim": "#4edea3",
+                        "secondary-container": "#6063ee",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary-fixed": "#e1e0ff",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary-fixed": "#0d1c2e",
+                        "error": "#ba1a1a",
+                        "primary-container": "#10b981",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#eceef0",
+                        "surface-bright": "#f7f9fb",
+                        "tertiary-container": "#95a4bb",
+                        "on-error-container": "#93000a",
+                        "on-surface": "#191c1e",
+                        "on-secondary-fixed-variant": "#2f2ebe",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#515f74",
+                        "on-primary-container": "#00422b",
+                        "secondary-fixed-dim": "#c0c1ff",
+                        "surface": "#f7f9fb",
+                        "primary": "#006c49",
+                        "tertiary-fixed": "#d5e3fc",
+                        "on-primary-fixed": "#002113"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "grid_gutter": "24px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "grid_columns_desktop": "12",
+                        "base": "4px",
+                        "2xl": "48px",
+                        "container_max_width": "1200px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "numeric-data": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "numeric-data": ["20px", { "lineHeight": "24px", "fontWeight": "600" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface font-body-md text-on-surface pb-24">
+<!-- TopAppBar -->
+<header class="bg-surface docked full-width top-0 sticky z-40 border-b border-outline-variant">
+<div class="flex justify-between items-center w-full px-lg max-w-container_max_width mx-auto h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Owner Dashboard</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-low transition-colors p-2 rounded-full" data-icon="notifications">notifications</button>
+</div>
+</div>
+</header>
+<main class="max-w-container_max_width mx-auto px-lg mt-md space-y-xl">
+<!-- Quick Summary / Settlements Bento -->
+<section class="grid grid-cols-2 gap-md">
+<div class="col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<h2 class="font-label-md text-label-md text-on-surface-variant mb-sm uppercase tracking-wider">Settlement Overview</h2>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-display-lg text-primary">₹42,850</span>
+<span class="font-label-md text-label-md text-on-surface-variant">Expected total</span>
+</div>
+<div class="mt-md w-full bg-surface-container-high h-2 rounded-full overflow-hidden flex">
+<div class="bg-primary h-full" style="width: 65%;"></div>
+<div class="bg-secondary h-full" style="width: 15%;"></div>
+<div class="bg-outline-variant h-full" style="width: 20%;"></div>
+</div>
+<div class="mt-md flex justify-between text-label-sm font-label-sm">
+<div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-primary"></div> Paid (65%)</div>
+<div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-secondary"></div> Pending (15%)</div>
+<div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-outline-variant"></div> Unpaid (20%)</div>
+</div>
+</div>
+</section>
+<!-- Needs Attention Section -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md flex items-center gap-2">
+<span class="material-symbols-outlined text-error" data-icon="priority_high">priority_high</span>
+                    Needs Attention
+                </h3>
+<span class="bg-error-container text-on-error-container font-label-sm text-label-sm px-2 py-0.5 rounded-full">2 Pending</span>
+</div>
+<div class="space-y-sm">
+<!-- Confirmation Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-md shadow-sm">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up professional portrait of a young man named Amal, smiling warmly against a soft-focus office background, neutral corporate aesthetic, soft lighting, 8k resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbYCrX_DAgStJ_YB9WmYiMj3NW_wtwiH71xazi_O5GdWgi5-wCk6gDqyFuGyDkUzAfa_LmJgGVBv47WpA12H3a9wYYUujVqM41vKsedHIZVYAhZ3HD7g8b_2WI1CYPPd-jITkBr2EGXksbadwpw7s5Y7jl8H3d6RvtD9TWZntrVPUH_iux7EaC1tuYZlZGcCXYAIYVfR557eb_RJh6HHe0hzSz_ZIE-bu3dGA_Z2uByxUUYRRGFGMouQ"/>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold">Amal K.</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">submitted ₹1,500 via UPI</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-numeric-data text-numeric-data text-primary">₹1,500</p>
+<p class="text-[10px] text-on-surface-variant">2 mins ago</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-md text-label-md active:scale-95 transition-transform flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span> Confirm
+                        </button>
+<button class="flex-1 border border-outline-variant text-error py-2 rounded-lg font-label-md text-label-md active:scale-95 transition-transform flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="cancel">cancel</span> Reject
+                        </button>
+</div>
+</div>
+<!-- Confirmation Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col gap-md shadow-sm">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of a professional young woman named Priya, calm expression, natural daylight setting, clean and modern corporate style, high definition photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq0hx8h6M9Lx0dCrhNZPQBKlbG3FSFKYmDmoOTgw19eN-0PHJpR1d63Hw_BD8rACrc7Jz8fLarEgwfMRvE3dcCZbGyyJGh2XzbygNbMe40tLprMlpAe8hQdI12FJZRfVDsPJXIOAu2U2nQncdmAaNeccR6w1evwUDebxaQ54I3-nNaL4jCBYsAjTuVUznWYdp9Y_Ol1m_ndVGKQLQOHbwtmWN3SP4NYJ9NaXtEIGyIOgzvlP_l9zKvtA"/>
+</div>
+<div>
+<p class="font-label-md text-label-md font-bold">Priya S.</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">submitted ₹4,200 Bank Transfer</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-numeric-data text-numeric-data text-primary">₹4,200</p>
+<p class="text-[10px] text-on-surface-variant">1 hour ago</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 bg-primary text-on-primary py-2 rounded-lg font-label-md text-label-md active:scale-95 transition-transform flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span> Confirm
+                        </button>
+<button class="flex-1 border border-outline-variant text-error py-2 rounded-lg font-label-md text-label-md active:scale-95 transition-transform flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="cancel">cancel</span> Reject
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Member Tracking List -->
+<section class="space-y-md">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md">Members (10)</h3>
+<button class="text-primary font-label-md text-label-md flex items-center gap-1">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span> Filter
+                </button>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden divide-y divide-outline-variant">
+<!-- Member Row 1 -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">R</div>
+<div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary border-2 border-white rounded-full"></div>
+</div>
+<div>
+<p class="font-label-md text-label-md">Rahul Varma</p>
+<span class="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">Paid</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-numeric-data text-numeric-data text-primary">₹0</p>
+<p class="text-[10px] text-on-surface-variant">No balance</p>
+</div>
+</div>
+<!-- Member Row 2 -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">S</div>
+<div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-secondary border-2 border-white rounded-full"></div>
+</div>
+<div>
+<p class="font-label-md text-label-md">Sanya Malhotra</p>
+<span class="bg-indigo-100 text-indigo-800 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">Partial</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-numeric-data text-numeric-data text-secondary">₹2,400</p>
+<p class="text-[10px] text-on-surface-variant">Due in 2 days</p>
+</div>
+</div>
+<!-- Member Row 3 -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">K</div>
+<div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-error border-2 border-white rounded-full"></div>
+</div>
+<div>
+<p class="font-label-md text-label-md">Karan Singh</p>
+<span class="bg-red-100 text-red-800 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">Pending</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-numeric-data text-numeric-data text-error">₹8,500</p>
+<p class="text-[10px] text-on-surface-variant">Overdue 3 days</p>
+</div>
+</div>
+<!-- Repeating members for visual list density -->
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">A</div>
+<div>
+<p class="font-label-md text-label-md">Ankit J.</p>
+<span class="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">Paid</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-numeric-data text-numeric-data text-primary">₹0</p>
+</div>
+</div>
+<div class="p-md flex items-center justify-between hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">D</div>
+<div>
+<p class="font-label-md text-label-md">Deepa K.</p>
+<span class="bg-green-100 text-green-800 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">Paid</span>
+</div>
+</div>
+<div class="text-right">
+<p class="font-numeric-data text-numeric-data text-primary">₹0</p>
+</div>
+</div>
+</div>
+<button class="w-full text-center py-sm text-secondary font-label-md text-label-md">View all 10 members</button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest border-t border-outline-variant shadow-md">
+<div class="flex justify-around items-center w-full h-16 pb-safe px-4">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<!-- Members - ACTIVE -->
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label-sm text-label-sm">Members</span>
+</a>
+<!-- Payments -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-sm text-label-sm">Payments</span>
+</a>
+<!-- History -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-sm text-label-sm">History</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</div>
+</nav>
+<!-- FAB Contextual (Only for Owner to Add Expense/Member) -->
+<div class="fixed bottom-24 right-6 z-40">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-lg flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[32px]" data-icon="add">add</span>
+</button>
+</div>
+<script>
+        // Micro-interactions for confirmations
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (this.innerText.includes('Confirm') || this.innerText.includes('Reject')) {
+                    const card = this.closest('.bg-surface-container-lowest');
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(20px)';
+                    setTimeout(() => card.remove(), 300);
+                }
+            });
+        });
+    </script>
+</body></html>
