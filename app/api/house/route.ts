@@ -74,7 +74,7 @@ export async function POST(request: Request) {
     });
 
     if (!month) {
-      month = await prisma.month.create({
+      const newMonth = await prisma.month.create({
         data: {
           startsOn,
           endsOn,
@@ -82,6 +82,7 @@ export async function POST(request: Request) {
           houseId: house.id,
         },
       });
+      month = newMonth;
 
       // Automatically create RentPayment records for all active members
       const activeMembers = await prisma.member.findMany({
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
             const memberDue = share + (index < remainder ? 1 : 0);
             return prisma.rentPayment.create({
               data: {
-                monthId: month.id,
+                monthId: newMonth.id,
                 memberId: member.id,
                 amountDue: memberDue,
                 amountPaid: 0,
