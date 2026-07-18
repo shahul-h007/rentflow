@@ -1,0 +1,10 @@
+member_app/
+.next/
+node_modules/
+.pnpm-store/
+.idea/
+.git/
+.env
+.env.local
+*.log
+*.tsbuildinfo
