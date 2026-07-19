@@ -231,8 +231,6 @@ export async function deleteMonth(monthId: string) {
     }
     await tx.expense.deleteMany({ where: { monthId } });
 
-    // 5. Delete any debts linked to this month
-    await tx.debt.deleteMany({ where: { monthId } });
 
     // 6. Delete the month itself
     await tx.month.delete({ where: { id: monthId } });
