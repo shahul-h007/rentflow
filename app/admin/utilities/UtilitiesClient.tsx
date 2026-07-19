@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Calendar, IndianRupee } from "lucide-react";
+import { Plus, Trash2, Calendar, IndianRupee, LoaderCircle } from "lucide-react";
 import { addUtility, deleteUtility } from "@/app/actions/utilities";
 
 export default function UtilitiesClient({ month, members }: { month: any; members: any[] }) {
   const [isAdding, setIsAdding] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
@@ -62,10 +63,13 @@ export default function UtilitiesClient({ month, members }: { month: any; member
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure? This will delete the utility and reverse the generated settlements.")) return;
+    setDeletingId(id);
     try {
       await deleteUtility(id);
     } catch (err: any) {
       alert(err.message);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -202,10 +206,11 @@ export default function UtilitiesClient({ month, members }: { month: any; member
                     </div>
                     <button
                       onClick={() => handleDelete(u.id)}
-                      className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      disabled={deletingId === u.id}
+                      className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
                       title="Delete Utility"
                     >
-                      <Trash2 size={20} />
+                      {deletingId === u.id ? <LoaderCircle size={20} className="animate-spin" /> : <Trash2 size={20} />}
                     </button>
                   </div>
                 </div>

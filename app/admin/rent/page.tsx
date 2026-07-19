@@ -1,9 +1,8 @@
 import React from "react";
 import prisma from "@/lib/prisma";
-import { Wallet, PlayCircle, Lock, Calendar, CheckCircle2, Circle, Activity } from "lucide-react";
-import { generateMonthlyRent, closeMonth, reopenMonth, recalculateOpenMonths, deleteMonth } from "@/app/actions/rent";
-import { revalidatePath } from "next/cache";
-import DeleteMonthButton from "./DeleteMonthButton";
+import { Calendar, CheckCircle2, Circle } from "lucide-react";
+import GenerateMonthButton from "./GenerateMonthButton";
+import RentMonthActions from "./RentMonthActions";
 
 export const dynamic = "force-dynamic";
 
@@ -39,15 +38,7 @@ export default async function RentManagement() {
           <p className="text-muted-foreground mt-1">Manage rent generation, open/close months, and track balances.</p>
         </div>
         <div className="flex gap-2">
-          <form action={async () => {
-            "use server";
-            const d = new Date();
-            await generateMonthlyRent(house.id, d);
-          }}>
-            <button className="px-4 py-2 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition shadow-sm text-sm flex items-center gap-2">
-              <PlayCircle size={16} /> Generate New Month
-            </button>
-          </form>
+          <GenerateMonthButton houseId={house.id} />
         </div>
       </div>
 
@@ -70,7 +61,7 @@ export default async function RentManagement() {
                 <div className={`p-5 flex items-center justify-between border-b border-border ${isClosed ? "bg-muted/30" : "bg-primary/5"}`}>
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold ${isClosed ? "bg-muted text-muted-foreground" : "bg-primary/20 text-primary"}`}>
-                      {isClosed ? <Lock size={20} /> : <Calendar size={20} />}
+                      <Calendar size={20} />
                     </div>
                     <div>
                       <h2 className="text-xl font-bold text-foreground">{monthName}</h2>
@@ -89,47 +80,7 @@ export default async function RentManagement() {
                       <p className="text-xs text-muted-foreground font-semibold uppercase">Collected</p>
                       <p className="text-sm font-numeric-data font-bold text-emerald-600">₹{totalPaid.toLocaleString()}</p>
                     </div>
-                    {isClosed ? (
-                      <div className="flex items-center gap-2">
-                        <form action={async () => {
-                          "use server";
-                          await reopenMonth(month.id);
-                        }}>
-                          <button className="px-3 py-1.5 border border-primary/20 text-primary bg-primary/5 hover:bg-primary/10 font-semibold rounded-lg transition text-xs flex items-center gap-1.5">
-                            <Lock size={14} /> Reopen Month
-                          </button>
-                        </form>
-                        <DeleteMonthButton monthId={month.id} deleteAction={deleteMonth} />
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <form action={async () => {
-                          "use server";
-                          if (month.houseId) {
-                            await recalculateOpenMonths(month.houseId);
-                          }
-                        }}>
-                          <button 
-                            className="px-3 py-1.5 border border-primary/20 text-primary bg-primary/5 hover:bg-primary/10 font-semibold rounded-lg transition text-xs flex items-center gap-1.5"
-                          >
-                            <Activity size={14} /> Recalculate
-                          </button>
-                        </form>
-                        <form action={async () => {
-                          "use server";
-                          await closeMonth(month.id);
-                        }}>
-                          <button 
-                            disabled={totalPaid < totalDue}
-                            title={totalPaid < totalDue ? "Cannot close month until all rent is fully paid." : ""}
-                            className="px-3 py-1.5 border border-destructive/20 text-destructive bg-destructive/5 hover:bg-destructive/10 disabled:opacity-50 disabled:cursor-not-allowed font-semibold rounded-lg transition text-xs flex items-center gap-1.5"
-                          >
-                            <Lock size={14} /> Close Month
-                          </button>
-                        </form>
-                        <DeleteMonthButton monthId={month.id} deleteAction={deleteMonth} />
-                      </div>
-                    )}
+                    <RentMonthActions monthId={month.id} isClosed={isClosed} totalDue={totalDue} />
                   </div>
                 </div>
 

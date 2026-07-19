@@ -1,6 +1,7 @@
 import React from "react";
 import { getSettlements, settleDebt, cancelDebt } from "@/app/actions/settlements";
 import { ArrowRightLeft, Check, X, ShieldAlert, History } from "lucide-react";
+import SettlementActions from "./SettlementActions";
 
 export const dynamic = "force-dynamic";
 
@@ -69,24 +70,7 @@ export default async function SettlementsManagement() {
                       <p className="text-xl font-numeric-data font-bold text-destructive">₹{remaining.toLocaleString()}</p>
                     </div>
                     
-                    <div className="flex flex-col gap-2 min-w-[120px]">
-                      <form action={async () => {
-                        "use server";
-                        await settleDebt(debt.id, remaining, "Cash/UPI");
-                      }}>
-                        <button className="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-1.5">
-                          <Check size={14} /> Full Settle
-                        </button>
-                      </form>
-                      <form action={async () => {
-                        "use server";
-                        await cancelDebt(debt.id);
-                      }}>
-                        <button className="w-full px-4 py-2 border border-destructive/20 text-destructive bg-destructive/5 hover:bg-destructive/10 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5">
-                          <ShieldAlert size={14} /> Cancel
-                        </button>
-                      </form>
-                    </div>
+                    <SettlementActions debtId={debt.id} remaining={remaining} />
                   </div>
                 </div>
               );

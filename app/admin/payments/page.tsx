@@ -1,6 +1,7 @@
 import React from "react";
 import { getPendingPayments, getPaymentHistory, confirmPayment, rejectPayment } from "@/app/actions/payments";
 import { Check, X, CreditCard, History, Clock } from "lucide-react";
+import PaymentActions from "./PaymentActions";
 
 export const dynamic = "force-dynamic";
 
@@ -60,24 +61,7 @@ export default async function PaymentsManagement() {
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-3 w-full md:w-auto">
-                  <form action={async () => {
-                    "use server";
-                    await confirmPayment(tx.id);
-                  }} className="flex-1 md:flex-none">
-                    <button className="w-full px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg shadow-sm transition active:scale-95 flex items-center justify-center gap-2">
-                      <Check size={18} /> Confirm
-                    </button>
-                  </form>
-                  <form action={async () => {
-                    "use server";
-                    await rejectPayment(tx.id);
-                  }} className="flex-1 md:flex-none">
-                    <button className="w-full px-5 py-2.5 border border-destructive/30 text-destructive bg-destructive/5 hover:bg-destructive/10 font-semibold rounded-lg transition active:scale-95 flex items-center justify-center gap-2">
-                      <X size={18} /> Reject
-                    </button>
-                  </form>
-                </div>
+                <PaymentActions txId={tx.id} />
               </div>
             ))}
           </div>

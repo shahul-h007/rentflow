@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Trash2, Calendar, IndianRupee } from "lucide-react";
+import { Plus, Trash2, Calendar, IndianRupee, LoaderCircle } from "lucide-react";
 import { addExpense, deleteExpense } from "@/app/actions/expenses";
 
 export default function ExpensesClient({ month, members }: { month: any; members: any[] }) {
   const [isAdding, setIsAdding] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
@@ -72,10 +73,13 @@ export default function ExpensesClient({ month, members }: { month: any; members
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure? This will delete the expense and reverse the generated settlements.")) return;
+    setDeletingId(id);
     try {
       await deleteExpense(id);
     } catch (err: any) {
       alert(err.message);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -232,10 +236,11 @@ export default function ExpensesClient({ month, members }: { month: any; members
                     </div>
                     <button
                       onClick={() => handleDelete(e.id)}
-                      className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                      disabled={deletingId === e.id}
+                      className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center"
                       title="Delete Expense"
                     >
-                      <Trash2 size={20} />
+                      {deletingId === e.id ? <LoaderCircle size={20} className="animate-spin" /> : <Trash2 size={20} />}
                     </button>
                   </div>
                 </div>

@@ -9,6 +9,7 @@ export default function MembersClient({ members }: { members: any[] }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentMember, setCurrentMember] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const [generatedCredentials, setGeneratedCredentials] = useState<{email: string, password: string} | null>(null);
 
   // Form states
@@ -61,17 +62,20 @@ export default function MembersClient({ members }: { members: any[] }) {
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Are you absolutely sure you want to completely delete ${name} from the database? This cannot be undone.`)) {
+      setProcessingId(id);
       try {
         await deleteMember(id);
       } catch (err: any) {
         alert(err.message);
+      } finally {
+        setProcessingId(null);
       }
     }
   };
 
   const handleResetPassword = async (id: string, name: string) => {
     if (confirm(`Do you want to generate/reset the app login password for ${name}?`)) {
-      setLoading(true);
+      setProcessingId(id);
       try {
         const res = await resetMemberPassword(id);
         if (res?.success && res?.password) {
@@ -80,14 +84,19 @@ export default function MembersClient({ members }: { members: any[] }) {
       } catch (err: any) {
         alert(err.message);
       } finally {
-        setLoading(false);
+        setProcessingId(null);
       }
     }
   };
 
   const handleToggleStatus = async (id: string, active: boolean) => {
     if (confirm(`Are you sure you want to ${active ? 'deactivate' : 'reactivate'} this member?`)) {
-      await toggleMemberStatus(id, active);
+      setProcessingId(id);
+      try {
+        await toggleMemberStatus(id, active);
+      } finally {
+        setProcessingId(null);
+      }
     }
   };
 
@@ -171,14 +180,14 @@ export default function MembersClient({ members }: { members: any[] }) {
                             <Mail size={16} />
                           </a>
                         )}
-                        <button onClick={() => handleToggleStatus(member.id, member.active)} className="p-1.5 text-muted-foreground hover:text-destructive rounded-md hover:bg-muted transition" title={member.active ? "Deactivate" : "Reactivate"}>
-                          {member.active ? <UserX size={16} /> : <CheckCircle2 size={16} />}
+                        <button onClick={() => handleToggleStatus(member.id, member.active)} disabled={processingId === member.id} className="p-1.5 text-muted-foreground hover:text-destructive rounded-md hover:bg-muted transition disabled:opacity-50" title={member.active ? "Deactivate" : "Reactivate"}>
+                          {processingId === member.id ? <LoaderCircle size={16} className="animate-spin" /> : member.active ? <UserX size={16} /> : <CheckCircle2 size={16} />}
                         </button>
-                        <button onClick={() => handleResetPassword(member.id, member.name)} className="p-1.5 text-muted-foreground hover:text-amber-500 rounded-md hover:bg-muted transition" title="Reset/Generate App Password">
-                          <Key size={16} />
+                        <button onClick={() => handleResetPassword(member.id, member.name)} disabled={processingId === member.id} className="p-1.5 text-muted-foreground hover:text-amber-500 rounded-md hover:bg-muted transition disabled:opacity-50" title="Reset/Generate App Password">
+                          {processingId === member.id ? <LoaderCircle size={16} className="animate-spin" /> : <Key size={16} />}
                         </button>
-                        <button onClick={() => handleDelete(member.id, member.name)} className="p-1.5 text-muted-foreground hover:text-red-600 rounded-md hover:bg-muted transition" title="Delete member">
-                          <Trash2 size={16} />
+                        <button onClick={() => handleDelete(member.id, member.name)} disabled={processingId === member.id} className="p-1.5 text-muted-foreground hover:text-red-600 rounded-md hover:bg-muted transition disabled:opacity-50" title="Delete member">
+                          {processingId === member.id ? <LoaderCircle size={16} className="animate-spin" /> : <Trash2 size={16} />}
                         </button>
                       </div>
                     </td>
