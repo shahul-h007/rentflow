@@ -105,7 +105,9 @@ export default async function RentManagement() {
                       <div className="flex items-center gap-2">
                         <form action={async () => {
                           "use server";
-                          await recalculateOpenMonths(month.houseId);
+                          if (month.houseId) {
+                            await recalculateOpenMonths(month.houseId);
+                          }
                         }}>
                           <button 
                             className="px-3 py-1.5 border border-primary/20 text-primary bg-primary/5 hover:bg-primary/10 font-semibold rounded-lg transition text-xs flex items-center gap-1.5"

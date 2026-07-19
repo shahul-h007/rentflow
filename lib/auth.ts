@@ -1,10 +1,11 @@
 import { Role } from "@prisma/client";
 import { prisma } from "./prisma";
 import { createSupabaseServerClient } from "./supabase/server";
-import { headers } from "next/headers";
+import { headers, cookies } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
 
 export async function requireUser(){
+  await cookies(); // properly opt into dynamic rendering
   if(!process.env.NEXT_PUBLIC_SUPABASE_URL||!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)throw new Error("Authentication is not configured");
   
   let user = null;
