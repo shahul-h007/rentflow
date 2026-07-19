@@ -109,7 +109,9 @@ export async function toggleMemberStatus(id: string, currentlyActive: boolean) {
   });
 
   const { recalculateOpenMonths } = await import("./rent");
-  await recalculateOpenMonths(member.houseId);
+  if (member.houseId) {
+    await recalculateOpenMonths(member.houseId);
+  }
 
   revalidatePath("/admin/members");
 }
