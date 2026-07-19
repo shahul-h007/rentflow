@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminHouseAccess } from "@/lib/auth";
 import { apiError } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await requireAdmin();
+    const { user, house } = await requireAdminHouseAccess();
     const { id } = await params;
 
     // Fetch the transaction
-    const transaction = await prisma.rentPaymentTransaction.findUnique({
-      where: { id },
+    const transaction = await prisma.rentPaymentTransaction.findFirst({
+      where: { id, rentPayment: { month: { houseId: house.id } } },
     });
 
     if (!transaction) {

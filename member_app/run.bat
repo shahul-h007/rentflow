@@ -1,0 +1,3 @@
+@echo off
+echo Starting RentFlow Member App...
+flutter run --dart-define=SUPABASE_URL=https://sbgpttvssbwpbfyeicmk.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_NNHOsiiVYu43-wbBVqULBg_8gcXMwgL --dart-define=API_BASE_URL=https://rentflow-sooty.vercel.app

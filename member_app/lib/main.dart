@@ -8,10 +8,17 @@ import 'screens/dashboard_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  const supabaseUrl = String.fromEnvironment('SUPABASE_URL', defaultValue: 'https://sbgpttvssbwpbfyeicmk.supabase.co');
+  const supabasePublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY', defaultValue: 'sb_publishable_NNHOsiiVYu43-wbBVqULBg_8gcXMwgL');
+  const apiBaseUrl = String.fromEnvironment('API_BASE_URL', defaultValue: 'https://rentflow-sooty.vercel.app');
+  
+  if (supabaseUrl.isEmpty || supabasePublishableKey.isEmpty || apiBaseUrl.isEmpty) {
+    throw StateError('SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, and API_BASE_URL must be supplied with --dart-define.');
+  }
   
   await Supabase.initialize(
-    url: 'https://sbgpttvssbwpbfyeicmk.supabase.co',
-    anonKey: 'sb_publishable_NNHOsiiVYu43-wbBVqULBg_8gcXMwgL',
+    url: supabaseUrl,
+    anonKey: supabasePublishableKey,
   );
 
   runApp(const MyApp());

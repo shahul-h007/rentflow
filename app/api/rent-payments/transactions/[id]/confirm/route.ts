@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminHouseAccess } from "@/lib/auth";
 import { apiError } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { PaymentStatus } from "@prisma/client";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await requireAdmin();
+    const { user, house } = await requireAdminHouseAccess();
     const { id } = await params;
 
     // Fetch the transaction
-    const transaction = await prisma.rentPaymentTransaction.findUnique({
-      where: { id },
+    const transaction = await prisma.rentPaymentTransaction.findFirst({
+      where: { id, rentPayment: { month: { houseId: house.id } } },
       include: {
         rentPayment: true,
       },
@@ -39,6 +39,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       const rp = await tx.rentPayment.findUniqueOrThrow({
         where: { id: transaction.rentPaymentId },
       });
+
+      if (transaction.amount > rp.amountDue - rp.amountPaid) {
+        throw new Error("Payment amount exceeds the outstanding balance");
+      }
 
       const newAmountPaid = rp.amountPaid + transaction.amount;
       let newStatus: PaymentStatus = PaymentStatus.PENDING;

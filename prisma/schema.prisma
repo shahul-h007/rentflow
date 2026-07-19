@@ -78,7 +78,7 @@ model Member {
 
 model Month {
   id String @id @default(uuid())
-  startsOn DateTime @unique @map("starts_on")
+  startsOn DateTime @map("starts_on")
   endsOn DateTime @map("ends_on")
   rent Int
   status MonthStatus @default(OPEN)
@@ -89,6 +89,7 @@ model Month {
   utilities Utility[]
   expenses Expense[]
   @@index([status])
+  @@unique([houseId, startsOn])
   @@map("months")
 }
 
@@ -237,4 +238,17 @@ model RentPaymentTransaction {
   payer Member? @relation("rent_transaction_payer", fields:[payerId], references:[id])
   rentPayment RentPayment @relation(fields:[rentPaymentId],references:[id],onDelete:Cascade)
   @@map("rent_payment_transactions")
+}
+
+model Notification {
+  id String @id @default(uuid())
+  memberId String? @map("member_id")
+  title String
+  message String
+  type String // RENT_DUE, PAYMENT_CONFIRMED, SYSTEM
+  isRead Boolean @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@index([memberId, isRead])
+  @@map("notifications")
 }

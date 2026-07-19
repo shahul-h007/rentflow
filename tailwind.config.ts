@@ -1,47 +1,43 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
   theme: {
     extend: {
       colors: {
-        // Emerald Trust Brand Palette
-        primary: "#006c49",
-        "primary-container": "#10b981",
-        "on-primary-container": "#00422b",
-        secondary: "#4648d4",
-        "on-secondary": "#ffffff",
-        "secondary-container": "#6063ee",
-        background: "#f7f9fb",
-        surface: "#ffffff",
-        "outline-variant": "#bbcabf",
-        outline: "#6c7a71",
-        "surface-container-low": "#f2f4f6",
-        "surface-container-lowest": "#ffffff",
-        "surface-container-highest": "#e0e3e5",
-        "on-surface": "#191c1e",
-        "on-surface-variant": "#3c4a42",
-        error: "#ba1a1a",
-        "error-container": "#ffdad6",
-        "on-error-container": "#93000a",
-        "secondary-fixed": "#e1e0ff",
-        "on-secondary-fixed": "#07006c",
-        tertiary: "#515f74",
-        "tertiary-fixed-dim": "#b9c7df",
-        
-        // Retained for safety / fallback
-        ink: "#10201e",
-        paper: "#f7f7f2",
-        mint: "#c8f1df",
-        forest: "#175747",
-        coral: "#fa7560"
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        card: "hsl(var(--card))",
+        "card-foreground": "hsl(var(--card-foreground))",
+        popover: "hsl(var(--popover))",
+        "popover-foreground": "hsl(var(--popover-foreground))",
+        primary: "hsl(var(--primary))",
+        "primary-foreground": "hsl(var(--primary-foreground))",
+        secondary: "hsl(var(--secondary))",
+        "secondary-foreground": "hsl(var(--secondary-foreground))",
+        muted: "hsl(var(--muted))",
+        "muted-foreground": "hsl(var(--muted-foreground))",
+        accent: "hsl(var(--accent))",
+        "accent-foreground": "hsl(var(--accent-foreground))",
+        destructive: "hsl(var(--destructive))",
+        "destructive-foreground": "hsl(var(--destructive-foreground))",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        soft: "0 18px 50px rgba(16,32,30,.10)",
-        setup: "0px 4px 12px rgba(0,0,0,0.05)"
+        soft: "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+        card: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)",
       }
-    }
+    },
   },
-  plugins: []
+  plugins: [],
 } satisfies Config;
-

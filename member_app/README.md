@@ -1,6 +1,10 @@
-# member_app
+# RentFlow member app
 
-A new Flutter project.
+Run the app with deployment-specific values instead of hard-coded production credentials:
+
+```sh
+flutter run --dart-define=API_BASE_URL=https://your-app.example.com --dart-define=SUPABASE_URL=https://your-project.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+```
 
 ## Getting Started
 

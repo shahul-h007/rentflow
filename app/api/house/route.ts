@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { requireAdmin, requireUser } from "@/lib/auth";
 import { apiError } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -16,12 +16,17 @@ const houseSchema = z.object({
 export async function GET() {
   try {
     const user = await requireUser();
-    const house = await prisma.house.findFirst({
-      include: {
-        members: true,
-        months: true,
-      },
-    });
+    const house = user.role === "ADMIN"
+      ? await prisma.house.findFirst({
+        orderBy: { createdAt: "asc" },
+        include: { members: true, months: true },
+      })
+      : user.member?.houseId
+        ? await prisma.house.findUnique({
+          where: { id: user.member.houseId },
+          include: { members: true, months: true },
+        })
+        : null;
 
     if (!house) {
       return NextResponse.json({ configured: false });
@@ -35,29 +40,30 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireUser();
+    const user = await requireAdmin();
     
     // Validate request body
     const body = await request.json();
     const payload = houseSchema.parse(body);
 
     // Create the House record
-    const house = await prisma.house.create({
-      data: {
+    const existingHouse = await prisma.house.findFirst({ orderBy: { createdAt: "asc" } });
+    const houseData = {
         name: payload.name,
         rent: payload.rent,
         dueDate: payload.dueDate,
         currency: payload.currency,
         upiId: payload.upiId,
         ownerName: payload.ownerName,
-      },
-    });
+      };
+    const house = existingHouse
+      ? await prisma.house.update({ where: { id: existingHouse.id }, data: houseData })
+      : await prisma.house.create({ data: houseData });
 
     // Link all existing members to this house
     await prisma.member.updateMany({
-      data: {
-        houseId: house.id,
-      },
+      where: { houseId: null },
+      data: { houseId: house.id },
     });
 
     // Setup the current active month billing cycle
@@ -68,8 +74,8 @@ export async function POST(request: Request) {
     // Check if the current month is already created
     let month = await prisma.month.findFirst({
       where: {
-        startsOn: { lte: now },
-        endsOn: { gte: now },
+        startsOn,
+        houseId: house.id,
       },
     });
 
@@ -86,7 +92,7 @@ export async function POST(request: Request) {
 
       // Automatically create RentPayment records for all active members
       const activeMembers = await prisma.member.findMany({
-        where: { active: true },
+        where: { active: true, houseId: house.id },
       });
 
       if (activeMembers.length > 0) {

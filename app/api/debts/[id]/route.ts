@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { requireHouseAccess } from "@/lib/auth";
 import { apiError } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { DebtStatus } from "@prisma/client";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const user = await requireUser();
+    const { user, house } = await requireHouseAccess();
     const { id } = await params;
 
     // Fetch the debt
     const debt = await prisma.debt.findUnique({
-      where: { id },
+      where: { id, debtor: { houseId: house.id }, creditor: { houseId: house.id } },
       include: {
         debtor: true,
         creditor: true,

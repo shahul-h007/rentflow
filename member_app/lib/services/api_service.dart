@@ -3,8 +3,15 @@ import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApiService {
-  final String baseUrl = "https://rentflow-sooty.vercel.app";
+  final String baseUrl;
   final SupabaseClient _supabase = Supabase.instance.client;
+
+  ApiService({String? baseUrl})
+      : baseUrl = baseUrl ?? const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://rentflow-sooty.vercel.app') {
+    if (this.baseUrl.isEmpty) {
+      throw StateError('API_BASE_URL must be supplied with --dart-define.');
+    }
+  }
 
   Map<String, String> _headers(String token) {
     return {
@@ -51,19 +58,18 @@ class ApiService {
     return data;
   }
 
-  Future<Map<String, dynamic>> _patch(String path, Map<String, dynamic> body) async {
+  Future<Map<String, dynamic>> _delete(String path) async {
     final token = await _getAccessToken();
     if (token == null) throw Exception("User is not signed in.");
 
-    final response = await http.patch(
+    final response = await http.delete(
       Uri.parse('$baseUrl$path'),
       headers: _headers(token),
-      body: jsonEncode(body),
     );
 
     final data = jsonDecode(response.body);
     if (response.statusCode != 200) {
-      throw Exception(data['error'] ?? "Failed to update record");
+      throw Exception(data['error'] ?? "Failed to delete record");
     }
     return data;
   }
@@ -77,15 +83,16 @@ class ApiService {
     await _post('/api/auth/session', {});
   }
 
-  Future<void> markRentPaid({
+  Future<void> submitRentPayment({
     required String paymentId,
     required int amountPaid,
     required String method,
   }) async {
-    await _patch(
-      '/api/rent-payments/$paymentId',
+    await _post(
+      '/api/rent-payments/transactions',
       {
-        'amountPaid': amountPaid,
+        'rentPaymentId': paymentId,
+        'amount': amountPaid,
         'method': method,
       },
     );
@@ -125,5 +132,9 @@ class ApiService {
         'reason': reason,
       },
     );
+  }
+
+  Future<void> deleteExpense(String expenseId) async {
+    await _delete('/api/expenses/$expenseId');
   }
 }

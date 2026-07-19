@@ -1,27 +1,20 @@
-// app/api/admin/reject/route.ts
 import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requireAdminHouseAccess } from "@/lib/auth";
+import { apiError } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
-import { createSupabaseServerClient } from "@/lib/supabase";
+
+const schema = z.object({ email: z.string().email().transform((email) => email.toLowerCase()) });
 
 export async function POST(request: Request) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
-
-  if (!user?.email?.toLowerCase() || user.email.toLowerCase() !== adminEmail) {
-    return NextResponse.json({ error: "Only admin can reject members" }, { status: 403 });
+  try {
+    const { house } = await requireAdminHouseAccess();
+    const { email } = schema.parse(await request.json());
+    const member = await prisma.member.findFirst({ where: { email, houseId: house.id } });
+    if (!member) return NextResponse.json({ error: "Member not found" }, { status: 404 });
+    await prisma.member.update({ where: { id: member.id }, data: { active: false } });
+    return NextResponse.json({ message: `${email} rejected` });
+  } catch (error) {
+    return apiError(error);
   }
-
-  const { email } = await request.json();
-  if (!email) {
-    return NextResponse.json({ error: "Missing email" }, { status: 400 });
-  }
-
-  // Delete the member record if it exists
-  await prisma.member.deleteMany({ where: { email: email.toLowerCase() } });
-
-  // Optionally sign out the user if they are already signed in
-  // (Supabase auth will reject next login because no member exists)
-
-  return NextResponse.json({ message: `${email} rejected` });
 }

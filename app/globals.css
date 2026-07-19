@@ -2,20 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light;
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    /* Sleek Emerald Primary */
+    --primary: 160 84% 20%; 
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 160 84% 20%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 160 84% 39%;
+  }
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: #f7f9fb;
-  color: #191c1e;
-  -webkit-tap-highlight-color: transparent;
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
 }
 
 /* Material symbols adjustments */
@@ -31,24 +86,23 @@ body {
   vertical-align: middle;
 }
 
-/* Support tabular numerals for ledger alignments */
+/* Font tabular numerals */
 .font-numeric-data {
   font-feature-settings: "tnum" 1;
 }
 
-/* Rounded inputs and styling focus outlines */
-input:focus, select:focus, textarea:focus {
-  outline: none !important;
-  border-color: #006c49 !important;
-  box-shadow: 0 0 0 2px rgba(0, 108, 73, 0.1) !important;
+/* Scrollbar formatting for Sidebar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-.setup-card-shadow {
-  box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+::-webkit-scrollbar-track {
+  background: transparent;
 }
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
 }
-
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}

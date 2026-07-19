@@ -10,11 +10,17 @@ export async function GET() {
     const now = new Date();
 
     // 1. Fetch House settings
-    const house = await prisma.house.findFirst();
+    const house = account.role === Role.ADMIN
+      ? await prisma.house.findFirst({ orderBy: { createdAt: "asc" } })
+      : account.member?.houseId
+        ? await prisma.house.findUnique({ where: { id: account.member.houseId } })
+        : null;
     if (!house) {
       return NextResponse.json({
         configured: false,
         account: {
+          id: account.id,
+          email: account.email,
           name: account.member?.name ?? account.email,
           role: account.role,
           memberId: account.member?.id,
@@ -22,13 +28,12 @@ export async function GET() {
       });
     }
 
-    // 2. Fetch the current active Month billing cycle
+    // 2. Fetch the latest Month billing cycle (matching Admin logic)
     const month = await prisma.month.findFirst({
       where: {
-        startsOn: { lte: now },
-        endsOn: { gte: now },
         houseId: house.id,
       },
+      orderBy: { startsOn: "desc" },
       include: {
         rentPayments: {
           include: {
@@ -47,11 +52,11 @@ export async function GET() {
           },
         },
         utilities: {
-          include: { paidBy: true },
-          orderBy: { dueDate: "asc" },
+          include: { paidBy: true, payments: { include: { member: true } } },
+          orderBy: { createdAt: "desc" },
         },
         expenses: {
-          include: { paidBy: true },
+          include: { paidBy: true, splits: { include: { member: true } } },
           orderBy: { createdAt: "desc" },
         },
       },
@@ -67,7 +72,7 @@ export async function GET() {
     let debts: any[] = [];
     if (account.role === Role.ADMIN) {
       debts = await prisma.debt.findMany({
-        where: { status: "OPEN" },
+        where: { status: "OPEN", debtor: { houseId: house.id }, creditor: { houseId: house.id } },
         include: { debtor: true, creditor: true },
         orderBy: { createdAt: "desc" },
       });
@@ -75,6 +80,8 @@ export async function GET() {
       debts = await prisma.debt.findMany({
         where: {
           status: "OPEN",
+          debtor: { houseId: house.id },
+          creditor: { houseId: house.id },
           OR: [
             { debtorId: account.member.id },
             { creditorId: account.member.id },
@@ -89,7 +96,7 @@ export async function GET() {
     let pendingConfirmations: any[] = [];
     if (account.role === Role.ADMIN) {
       pendingConfirmations = await prisma.rentPaymentTransaction.findMany({
-        where: { status: "SUBMITTED" },
+        where: { status: "SUBMITTED", rentPayment: { month: { houseId: house.id } } },
         include: {
           payer: true,
           rentPayment: {
@@ -123,13 +130,17 @@ export async function GET() {
       configured: true,
       house,
       account: {
+        id: account.id,
+        email: account.email,
         name: account.member?.name ?? account.email,
         role: account.role,
         memberId: account.member?.id,
       },
-      month,
+      month: month ? {
+        ...month,
+        debts,
+      } : null,
       members,
-      debts,
       pendingConfirmations,
       recentActivity,
     });

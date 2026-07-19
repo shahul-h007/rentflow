@@ -40,3 +40,22 @@ export async function requireUser(){
 }
 
 export async function requireAdmin(){const user=await requireUser();if(user.role!==Role.ADMIN)throw new Error("Administrator access required");return user}
+
+export async function requireHouseAccess() {
+  const user = await requireUser();
+  const house = user.role === Role.ADMIN
+    ? await prisma.house.findFirst({ orderBy: { createdAt: "asc" } })
+    : user.member?.houseId
+      ? await prisma.house.findUnique({ where: { id: user.member.houseId } })
+      : null;
+
+  if (!house) throw new Error("House access is not configured for this account");
+  return { user, house };
+}
+
+export async function requireAdminHouseAccess() {
+  const user = await requireAdmin();
+  const house = await prisma.house.findFirst({ orderBy: { createdAt: "asc" } });
+  if (!house) throw new Error("House access is not configured for this account");
+  return { user, house };
+}

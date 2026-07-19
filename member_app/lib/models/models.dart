@@ -1,3 +1,29 @@
+class HouseInfo {
+  final String id;
+  final String name;
+  final int rent;
+  final String? upiId;
+  final String? ownerName;
+
+  HouseInfo({
+    required this.id,
+    required this.name,
+    required this.rent,
+    this.upiId,
+    this.ownerName,
+  });
+
+  factory HouseInfo.fromJson(Map<String, dynamic> json) {
+    return HouseInfo(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      rent: json['rent'] ?? 0,
+      upiId: json['upiId'],
+      ownerName: json['ownerName'],
+    );
+  }
+}
+
 class UserAccount {
   final String id;
   final String email;
@@ -90,6 +116,41 @@ class RentMonth {
   }
 }
 
+class RentPaymentTransaction {
+  final String id;
+  final int amount;
+  final String method;
+  final String status;
+  final String? reference;
+  final String? screenshotUrl;
+  final DateTime paidAt;
+  final Member? payer;
+
+  RentPaymentTransaction({
+    required this.id,
+    required this.amount,
+    required this.method,
+    required this.status,
+    this.reference,
+    this.screenshotUrl,
+    required this.paidAt,
+    this.payer,
+  });
+
+  factory RentPaymentTransaction.fromJson(Map<String, dynamic> json) {
+    return RentPaymentTransaction(
+      id: json['id'] ?? '',
+      amount: json['amount'] ?? 0,
+      method: json['method'] ?? 'CASH',
+      status: json['status'] ?? 'SUBMITTED',
+      reference: json['reference'],
+      screenshotUrl: json['screenshotUrl'],
+      paidAt: DateTime.parse(json['paidAt'] ?? DateTime.now().toIso8601String()),
+      payer: json['payer'] != null ? Member.fromJson(json['payer']) : null,
+    );
+  }
+}
+
 class RentPayment {
   final String id;
   final String monthId;
@@ -100,6 +161,7 @@ class RentPayment {
   final String status;
   final DateTime? paidAt;
   final Member? member;
+  final List<RentPaymentTransaction> transactions;
 
   RentPayment({
     required this.id,
@@ -111,9 +173,17 @@ class RentPayment {
     required this.status,
     this.paidAt,
     this.member,
+    this.transactions = const [],
   });
 
   factory RentPayment.fromJson(Map<String, dynamic> json) {
+    var txs = <RentPaymentTransaction>[];
+    if (json['transactions'] != null) {
+      txs = (json['transactions'] as List)
+          .map((t) => RentPaymentTransaction.fromJson(t))
+          .toList();
+    }
+
     return RentPayment(
       id: json['id'] ?? '',
       monthId: json['monthId'] ?? '',
@@ -124,6 +194,36 @@ class RentPayment {
       status: json['status'] ?? 'PENDING',
       paidAt: json['paidAt'] != null ? DateTime.parse(json['paidAt']) : null,
       member: json['member'] != null ? Member.fromJson(json['member']) : null,
+      transactions: txs,
+    );
+  }
+}
+
+class UtilityPayment {
+  final String id;
+  final String memberId;
+  final int amountDue;
+  final int amountPaid;
+  final String status;
+  final Member? member;
+
+  UtilityPayment({
+    required this.id,
+    required this.memberId,
+    required this.amountDue,
+    required this.amountPaid,
+    required this.status,
+    this.member,
+  });
+
+  factory UtilityPayment.fromJson(Map<String, dynamic> json) {
+    return UtilityPayment(
+      id: json['id'] ?? '',
+      memberId: json['memberId'] ?? '',
+      amountDue: json['amountDue'] ?? 0,
+      amountPaid: json['amountPaid'] ?? 0,
+      status: json['status'] ?? 'PENDING',
+      member: json['member'] != null ? Member.fromJson(json['member']) : null,
     );
   }
 }
@@ -132,30 +232,64 @@ class Utility {
   final String id;
   final String name;
   final int amount;
+  final String splitType;
   final String status;
   final DateTime? dueDate;
   final String? paidById;
   final Member? paidBy;
+  final List<UtilityPayment> payments;
 
   Utility({
     required this.id,
     required this.name,
     required this.amount,
+    required this.splitType,
     required this.status,
     this.dueDate,
     this.paidById,
     this.paidBy,
+    this.payments = const [],
   });
 
   factory Utility.fromJson(Map<String, dynamic> json) {
+    var p = <UtilityPayment>[];
+    if (json['payments'] != null) {
+      p = (json['payments'] as List).map((x) => UtilityPayment.fromJson(x)).toList();
+    }
+
     return Utility(
       id: json['id'] ?? '',
       name: json['name'] ?? '',
       amount: json['amount'] ?? 0,
+      splitType: json['splitType'] ?? 'EQUAL',
       status: json['status'] ?? 'PENDING',
       dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate']) : null,
       paidById: json['paidById'],
       paidBy: json['paidBy'] != null ? Member.fromJson(json['paidBy']) : null,
+      payments: p,
+    );
+  }
+}
+
+class ExpenseSplit {
+  final String id;
+  final String memberId;
+  final int amount;
+  final Member? member;
+
+  ExpenseSplit({
+    required this.id,
+    required this.memberId,
+    required this.amount,
+    this.member,
+  });
+
+  factory ExpenseSplit.fromJson(Map<String, dynamic> json) {
+    return ExpenseSplit(
+      id: json['id'] ?? '',
+      memberId: json['memberId'] ?? '',
+      amount: json['amount'] ?? 0,
+      member: json['member'] != null ? Member.fromJson(json['member']) : null,
     );
   }
 }
@@ -164,30 +298,41 @@ class Expense {
   final String id;
   final String title;
   final int amount;
+  final String splitType;
   final String? notes;
   final DateTime createdAt;
   final String paidById;
   final Member? paidBy;
+  final List<ExpenseSplit> splits;
 
   Expense({
     required this.id,
     required this.title,
     required this.amount,
+    required this.splitType,
     this.notes,
     required this.createdAt,
     required this.paidById,
     this.paidBy,
+    this.splits = const [],
   });
 
   factory Expense.fromJson(Map<String, dynamic> json) {
+    var s = <ExpenseSplit>[];
+    if (json['splits'] != null) {
+      s = (json['splits'] as List).map((x) => ExpenseSplit.fromJson(x)).toList();
+    }
+
     return Expense(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
       amount: json['amount'] ?? 0,
+      splitType: json['splitType'] ?? 'EQUAL',
       notes: json['notes'],
       createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
       paidById: json['paidById'] ?? '',
       paidBy: json['paidBy'] != null ? Member.fromJson(json['paidBy']) : null,
+      splits: s,
     );
   }
 }

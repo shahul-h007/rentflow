@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "RentFlow Member App",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=SUPABASE_URL=https://sbgpttvssbwpbfyeicmk.supabase.co",
+        "--dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_NNHOsiiVYu43-wbBVqULBg_8gcXMwgL",
+        "--dart-define=API_BASE_URL=https://rentflow-sooty.vercel.app"
+      ]
+    }
+  ]
+}

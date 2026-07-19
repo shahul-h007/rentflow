@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { requireHouseAccess } from "@/lib/auth";
 import { apiError } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -15,13 +15,13 @@ const transactionSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const user = await requireUser();
+    const { user, house } = await requireHouseAccess();
     const body = await request.json();
     const payload = transactionSchema.parse(body);
 
     // Verify the rent payment record exists
-    const rentPayment = await prisma.rentPayment.findUnique({
-      where: { id: payload.rentPaymentId },
+    const rentPayment = await prisma.rentPayment.findFirst({
+      where: { id: payload.rentPaymentId, month: { houseId: house.id } },
       include: { member: true },
     });
 
@@ -40,9 +40,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Payer must be specified" }, { status: 400 });
     }
 
+    const payer = await prisma.member.findFirst({ where: { id: payerId, active: true, houseId: house.id } });
+    if (!payer) return NextResponse.json({ error: "Payer must be an active member of this house" }, { status: 400 });
+
     // Standard members can only submit payments where they are either the tenant or the payer
     if (user.role !== "ADMIN" && rentPayment.memberId !== currentMemberId && payerId !== currentMemberId) {
       return NextResponse.json({ error: "You do not have permission to submit this transaction" }, { status: 403 });
+    }
+
+    if (payload.amount > rentPayment.amountDue - rentPayment.amountPaid) {
+      return NextResponse.json({ error: "Payment amount exceeds the outstanding balance" }, { status: 400 });
+    }
+
+    // Check if there's already a SUBMITTED transaction
+    const existingTransaction = await prisma.rentPaymentTransaction.findFirst({
+      where: {
+        rentPaymentId: payload.rentPaymentId,
+        status: "SUBMITTED",
+      }
+    });
+
+    if (existingTransaction) {
+      return NextResponse.json({ error: "A payment request is already pending verification. Please wait for admin approval." }, { status: 400 });
     }
 
     // Create the transaction record with SUBMITTED status
