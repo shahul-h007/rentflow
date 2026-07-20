@@ -11,19 +11,19 @@ class ItemExtractor {
 
   // 1. <Name> <Qty> <UnitPrice> <TotalPrice> OR <SlNo> <Name> <Qty> <UnitPrice> <TotalPrice>
   static final _patternFullLine = RegExp(
-    r'^(?:\d+\s+)?([a-zA-Z0-9\s\&\.\-\(\)\']+?)\s+(\d+)\s+[0-9]+\.[0-9]{2}\s+([0-9]+\.[0-9]{2})$',
+    r"^(?:\d+\s+)?([a-zA-Z0-9\s\&\.\-\(\)\']+?)\s+(\d+)\s+[0-9]+\.[0-9]{2}\s+([0-9]+\.[0-9]{2})$",
     caseSensitive: false,
   );
 
   // 2. <Name> <Qty> <Price>
   static final _patternQtyAfterName = RegExp(
-    r'^([a-zA-Z0-9\s\&\.\-\(\)\']+?)\s+(?:(?:x\s*(\d+))|(?:(\d+)\s*x)|(?:qty[\s:]*(\d+))|(\d+))?\s*(?:rs\.?|inr|usd|€|£|\$|₹)?\s*([0-9]+\.[0-9]{2})$',
+    r"^([a-zA-Z0-9\s\&\.\-\(\)\']+?)\s+(?:(?:x\s*(\d+))|(?:(\d+)\s*x)|(?:qty[\s:]*(\d+))|(\d+))?\s*(?:rs\.?|inr|usd|€|£|\$|₹)?\s*([0-9]+\.[0-9]{2})$",
     caseSensitive: false,
   );
 
   // 3. <Qty> <Name> <Price>
   static final _patternQtyBeforeName = RegExp(
-    r'^(\d+)\s+([a-zA-Z0-9\s\&\.\-\(\)\']+?)\s+(?:rs\.?|inr|usd|€|£|\$|₹)?\s*([0-9]+\.[0-9]{2})$',
+    r"^(\d+)\s+([a-zA-Z0-9\s\&\.\-\(\)\']+?)\s+(?:rs\.?|inr|usd|€|£|\$|₹)?\s*([0-9]+\.[0-9]{2})$",
     caseSensitive: false,
   );
 
