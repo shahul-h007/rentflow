@@ -51,6 +51,7 @@ export async function addMember(data: { name: string; email?: string; phone?: st
       phone: data.phone || null,
       houseId: house.id,
       active: true,
+      appPassword: generatedPassword,
     }
   });
 
@@ -201,7 +202,13 @@ export async function resetMemberPassword(id: string) {
     // Link it to the Member
     await prisma.member.update({
       where: { id: member.id },
-      data: { userId: user.id }
+      data: { userId: user.id, appPassword: generatedPassword }
+    });
+  } else {
+    // Just update the password in the database
+    await prisma.member.update({
+      where: { id: member.id },
+      data: { appPassword: generatedPassword }
     });
   }
 

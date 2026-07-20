@@ -58,6 +58,7 @@ model Member {
   name String
   email String? @unique
   phone String?
+  appPassword String? @map("app_password")
   photoUrl String? @map("photo_url")
   joinedAt DateTime @default(now()) @map("joined_at")
   active Boolean @default(true)

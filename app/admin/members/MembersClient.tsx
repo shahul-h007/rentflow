@@ -10,7 +10,7 @@ export default function MembersClient({ members }: { members: any[] }) {
   const [currentMember, setCurrentMember] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const [generatedCredentials, setGeneratedCredentials] = useState<{email: string, password: string} | null>(null);
+  const [generatedCredentials, setGeneratedCredentials] = useState<{email: string, password: string, memberId?: string, memberName?: string} | null>(null);
 
   // Form states
   const [name, setName] = useState("");
@@ -73,13 +73,22 @@ export default function MembersClient({ members }: { members: any[] }) {
     }
   };
 
+  const handleViewCredentials = (member: any) => {
+    setGeneratedCredentials({ 
+      email: member.email || "No email", 
+      password: member.appPassword || "No password saved",
+      memberId: member.id,
+      memberName: member.name
+    });
+  };
+
   const handleResetPassword = async (id: string, name: string) => {
-    if (confirm(`Do you want to generate/reset the app login password for ${name}?`)) {
+    if (confirm(`Are you sure you want to generate a NEW password for ${name}? The old one will immediately stop working.`)) {
       setProcessingId(id);
       try {
         const res = await resetMemberPassword(id);
         if (res?.success && res?.password) {
-          setGeneratedCredentials({ email: res.email, password: res.password });
+          setGeneratedCredentials({ email: res.email, password: res.password, memberId: id, memberName: name });
         }
       } catch (err: any) {
         alert(err.message);
@@ -183,7 +192,7 @@ export default function MembersClient({ members }: { members: any[] }) {
                         <button onClick={() => handleToggleStatus(member.id, member.active)} disabled={processingId === member.id} className="p-1.5 text-muted-foreground hover:text-destructive rounded-md hover:bg-muted transition disabled:opacity-50" title={member.active ? "Deactivate" : "Reactivate"}>
                           {processingId === member.id ? <LoaderCircle size={16} className="animate-spin" /> : member.active ? <UserX size={16} /> : <CheckCircle2 size={16} />}
                         </button>
-                        <button onClick={() => handleResetPassword(member.id, member.name)} disabled={processingId === member.id} className="p-1.5 text-muted-foreground hover:text-amber-500 rounded-md hover:bg-muted transition disabled:opacity-50" title="Reset/Generate App Password">
+                        <button onClick={() => handleViewCredentials(member)} disabled={processingId === member.id} className="p-1.5 text-muted-foreground hover:text-emerald-500 rounded-md hover:bg-muted transition disabled:opacity-50" title="View App Password">
                           {processingId === member.id ? <LoaderCircle size={16} className="animate-spin" /> : <Key size={16} />}
                         </button>
                         <button onClick={() => handleDelete(member.id, member.name)} disabled={processingId === member.id} className="p-1.5 text-muted-foreground hover:text-red-600 rounded-md hover:bg-muted transition disabled:opacity-50" title="Delete member">
@@ -272,26 +281,31 @@ export default function MembersClient({ members }: { members: any[] }) {
                 <CheckCircle2 size={24} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-emerald-700">Account Created!</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">They can now log into the mobile app.</p>
+                <h2 className="text-xl font-bold text-emerald-700">App Credentials</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">Use these details to log into the mobile app.</p>
               </div>
             </div>
             <div className="p-6 space-y-4">
               <div className="bg-muted/30 p-4 rounded-xl border border-border">
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Login Email</label>
-                <div className="font-mono text-sm font-medium text-foreground mb-4 select-all">{generatedCredentials.email}</div>
-                
-                <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Temporary Password</label>
-                <div className="font-mono text-lg font-bold text-emerald-600 select-all">{generatedCredentials.password}</div>
+                <p className="text-sm font-semibold text-muted-foreground mb-1">Login Email</p>
+                <p className="font-mono text-lg font-bold text-foreground select-all">{generatedCredentials.email}</p>
               </div>
-              <p className="text-xs text-muted-foreground text-center">
-                Copy and send these credentials to the member via WhatsApp. They can change their password later in the app.
-              </p>
-              <div className="pt-2">
-                <button 
-                  onClick={() => setGeneratedCredentials(null)} 
-                  className="w-full px-4 py-3 rounded-lg font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition shadow-sm"
-                >
+              <div className="bg-muted/30 p-4 rounded-xl border border-border">
+                <p className="text-sm font-semibold text-muted-foreground mb-1">Temporary Password</p>
+                <p className="font-mono text-xl font-bold text-emerald-600 select-all tracking-wider">{generatedCredentials.password}</p>
+              </div>
+              <div className="pt-2 flex justify-between items-center">
+                {generatedCredentials.memberId && generatedCredentials.memberName ? (
+                  <button 
+                    onClick={() => handleResetPassword(generatedCredentials.memberId!, generatedCredentials.memberName!)} 
+                    disabled={processingId === generatedCredentials.memberId}
+                    className="text-xs text-amber-500 hover:underline flex items-center gap-1"
+                  >
+                    {processingId === generatedCredentials.memberId ? <LoaderCircle size={12} className="animate-spin" /> : <Key size={12} />}
+                    Generate New Password
+                  </button>
+                ) : <div />}
+                <button onClick={() => setGeneratedCredentials(null)} className="px-6 py-2 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-600 transition shadow-sm">
                   Done
                 </button>
               </div>
