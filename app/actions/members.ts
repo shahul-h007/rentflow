@@ -177,6 +177,12 @@ export async function resetMemberPassword(id: string) {
       console.error(authError);
       throw new Error(authError.message || "Failed to reset password in Supabase.");
     }
+    
+    // Just update the password in the database
+    await prisma.member.update({
+      where: { id: member.id },
+      data: { appPassword: generatedPassword }
+    });
   } else {
     // 3. They don't have an auth account yet (migrated member). Create it now!
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
@@ -203,12 +209,6 @@ export async function resetMemberPassword(id: string) {
     await prisma.member.update({
       where: { id: member.id },
       data: { userId: user.id, appPassword: generatedPassword }
-    });
-  } else {
-    // Just update the password in the database
-    await prisma.member.update({
-      where: { id: member.id },
-      data: { appPassword: generatedPassword }
     });
   }
 
