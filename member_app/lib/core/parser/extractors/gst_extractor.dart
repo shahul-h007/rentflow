@@ -1,6 +1,6 @@
 class GSTExtractor {
   static final _patterns = [
-    RegExp(r'(?:gst|cgst|sgst|vat|tax)[\s:]*(?:rs\.?|inr|usd|€|£|₹)?\s*([0-9]+\.[0-9]{2})', caseSensitive: false),
+    RegExp(r'(?:gst|cgst|sgst|vat|tax).*?(?:rs\.?|inr|usd|€|£|₹)?\s*([0-9]+\.[0-9]{2})$', caseSensitive: false),
   ];
 
   /// Returns the sum of all matching tax lines (e.g. CGST + SGST)

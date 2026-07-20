@@ -155,11 +155,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         month: dashboard.currentMonth!,
                         currentUser: auth.currentUser,
                         formatCurrency: _formatCurrency,
-                        onNavigateToTab: (index) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
                       ),
                       _RentTab(
                         month: dashboard.currentMonth!,
@@ -237,13 +232,11 @@ class _HomeTab extends StatelessWidget {
   final RentMonth month;
   final UserAccount? currentUser;
   final String Function(int) formatCurrency;
-  final Function(int) onNavigateToTab;
 
   const _HomeTab({
     required this.month,
     required this.currentUser,
     required this.formatCurrency,
-    required this.onNavigateToTab,
   });
 
   @override
@@ -256,77 +249,36 @@ class _HomeTab extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Hero Section
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF1E4620), Color(0xFF2A5C2D)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        // Date / Status header
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "${DateFormat('MMMM yyyy').format(month.startsOn)} Billing Status",
+              style: GoogleFonts.outfit(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF1E4620),
+              ),
             ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF1E4620).withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              )
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "${DateFormat('MMMM yyyy').format(month.startsOn)} Status",
-                    style: GoogleFonts.inter(
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white24,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      month.status.toUpperCase(),
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ),
-                ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE3F6F1),
+                borderRadius: BorderRadius.circular(100),
               ),
-              const SizedBox(height: 16),
-              Text(
-                formatCurrency(collected),
-                style: GoogleFonts.outfit(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "Total Rent Collected",
+              child: Text(
+                month.status,
                 style: GoogleFonts.inter(
-                  color: Colors.white70,
-                  fontSize: 13,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1E4620),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
 
         // Grid of Stats
         GridView.count(
@@ -338,12 +290,18 @@ class _HomeTab extends StatelessWidget {
           childAspectRatio: 1.4,
           children: [
             _MetricCard(
+              title: "Rent Collected",
+              value: formatCurrency(collected),
+              badgeText: "${((collected / month.rent) * 100).round()}% Recv",
+              badgeColor: const Color(0xFFE3F6F1),
+              textColor: const Color(0xFF1E4620),
+            ),
+            _MetricCard(
               title: "Rent Remaining",
               value: formatCurrency(remaining),
               badgeText: "${month.rentPayments.where((p) => p.status != 'PAID').length} Open",
               badgeColor: const Color(0xFFFFE4A3),
               textColor: const Color(0xFF875B00),
-              icon: Icons.pending_actions,
             ),
             _MetricCard(
               title: "Utilities Dues",
@@ -351,7 +309,6 @@ class _HomeTab extends StatelessWidget {
               badgeText: "${month.utilities.length} Bills",
               badgeColor: const Color(0xFFE5DDFF),
               textColor: const Color(0xFF4A3AFF),
-              icon: Icons.receipt_long,
             ),
             _MetricCard(
               title: "Shared Expenses",
@@ -359,17 +316,6 @@ class _HomeTab extends StatelessWidget {
               badgeText: "${month.expenses.length} Records",
               badgeColor: const Color(0xFFFFD9D4),
               textColor: const Color(0xFF8B2D21),
-              icon: Icons.fastfood,
-            ),
-            _MetricCard(
-              title: "My Share",
-              value: formatCurrency(
-                month.expenses.where((e) => e.paidBy == currentUser?.memberId).fold(0, (sum, e) => sum + e.amount)
-              ),
-              badgeText: "Expense",
-              badgeColor: const Color(0xFFE3F6F1),
-              textColor: const Color(0xFF1E4620),
-              icon: Icons.person,
             ),
           ],
         ),
@@ -377,51 +323,30 @@ class _HomeTab extends StatelessWidget {
         Text(
           "Quick Actions",
           style: GoogleFonts.outfit(
-            fontSize: 16,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: const Color(0xFF1C1C1E),
+            color: const Color(0xFF1E4620),
           ),
         ),
         const SizedBox(height: 12),
-        // Quick Actions Grid
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 2.5,
-          children: [
-            _QuickActionBtn(
-              title: "Pay Rent",
-              icon: Icons.payments_outlined,
-              color: const Color(0xFF1E4620),
-              onTap: () => onNavigateToTab(1),
+        ElevatedButton.icon(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ScannerScreen()),
+            );
+          },
+          icon: const Icon(Icons.document_scanner),
+          label: const Text("Scan Food Receipt"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1E4620),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            alignment: Alignment.center,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            _QuickActionBtn(
-              title: "Add Bill",
-              icon: Icons.add_circle_outline,
-              color: const Color(0xFF4A3AFF),
-              onTap: () => onNavigateToTab(2),
-            ),
-            _QuickActionBtn(
-              title: "Settle Debts",
-              icon: Icons.handshake_outlined,
-              color: const Color(0xFF8B2D21),
-              onTap: () => onNavigateToTab(3),
-            ),
-            _QuickActionBtn(
-              title: "Scan Receipt",
-              icon: Icons.document_scanner_outlined,
-              color: const Color(0xFF0F766E),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ScannerScreen()),
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ],
     );
@@ -845,61 +770,12 @@ class _RentTab extends StatelessWidget {
   }
 }
 
-class _QuickActionBtn extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _QuickActionBtn({
-    required this.title,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.inter(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _MetricCard extends StatelessWidget {
   final String title;
   final String value;
   final String badgeText;
   final Color badgeColor;
   final Color textColor;
-  final IconData? icon;
 
   const _MetricCard({
     required this.title,
@@ -907,7 +783,6 @@ class _MetricCard extends StatelessWidget {
     required this.badgeText,
     required this.badgeColor,
     required this.textColor,
-    this.icon,
   });
 
   @override
@@ -918,13 +793,6 @@ class _MetricCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE5E5EA)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          )
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -934,23 +802,13 @@ class _MetricCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Row(
-                  children: [
-                    if (icon != null) ...[
-                      Icon(icon, size: 14, color: const Color(0xFF8E8E93)),
-                      const SizedBox(width: 4),
-                    ],
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: const Color(0xFF8E8E93),
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: const Color(0xFF8E8E93),
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(

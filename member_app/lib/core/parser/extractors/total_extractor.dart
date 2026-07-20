@@ -1,8 +1,8 @@
 class TotalExtractor {
   static final _patterns = [
-    RegExp(r'(?:grand|net|amount|balance)?\s*total[\s:]*(?:rs\.?|inr|usd|€|£|₹)?\s*([0-9]+\.[0-9]{2})', caseSensitive: false),
+    RegExp(r'(?:grand|net|amount|balance|sub|bill)?\s*(?:total|amount)[\s:]*(?:rs\.?|inr|usd|€|£|₹)?\s*([0-9]+\.[0-9]{2})', caseSensitive: false),
     RegExp(r'(?:amount payable|balance due)[\s:]*(?:rs\.?|inr|usd|€|£|₹)?\s*([0-9]+\.[0-9]{2})', caseSensitive: false),
-    RegExp(r'^total[\s:]*([0-9]+)$', caseSensitive: false),
+    RegExp(r'^(?:total|amount)[\s:]*([0-9]+)$', caseSensitive: false),
   ];
 
   static double? extract(List<String> lines) {
