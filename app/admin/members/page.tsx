@@ -17,8 +17,6 @@ export default async function MembersManagement() {
     members = rawMembers.map(m => ({
       ...m,
       joinedAt: m.joinedAt?.toISOString() || null,
-      createdAt: m.createdAt?.toISOString() || null,
-      updatedAt: m.updatedAt?.toISOString() || null,
     }));
   } catch (err: any) {
     errorMsg = err.message || String(err);
