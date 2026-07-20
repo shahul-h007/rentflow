@@ -158,4 +158,87 @@ class DashboardProvider extends ChangeNotifier {
       return false;
     }
   }
+  int getUserTotalOutstanding(String? memberId) {
+    if (memberId == null || _currentMonth == null) return 0;
+    
+    int total = 0;
+    
+    // Rent Due
+    final rentPayment = _currentMonth!.rentPayments.where((p) => p.memberId == memberId).firstOrNull;
+    if (rentPayment != null) {
+      total += (rentPayment.amountDue - rentPayment.amountPaid);
+    }
+    
+    // Utilities Due
+    for (var utility in _currentMonth!.utilities) {
+      final utilPayment = utility.payments.where((p) => p.memberId == memberId).firstOrNull;
+      if (utilPayment != null) {
+        total += (utilPayment.amountDue - utilPayment.amountPaid);
+      }
+    }
+    
+    // Debts Due (Settlements owed to others)
+    final userDebts = _debts.where((d) => d.debtorId == memberId && d.status != 'SETTLED');
+    for (var debt in userDebts) {
+      total += (debt.amount - debt.settledAmount);
+    }
+    
+    return total;
+  }
+
+  List<Map<String, dynamic>> getRecentActivity(String? memberId) {
+    if (memberId == null || _currentMonth == null) return [];
+    
+    List<Map<String, dynamic>> activities = [];
+    
+    // Add Rent Payments
+    final rentPayment = _currentMonth!.rentPayments.where((p) => p.memberId == memberId).firstOrNull;
+    if (rentPayment != null) {
+      for (var tx in rentPayment.transactions) {
+        activities.add({
+          'id': tx.id,
+          'title': 'Monthly Rent Payment',
+          'subtitle': 'Apartment Rent',
+          'amount': tx.amount,
+          'date': tx.paidAt,
+          'type': 'RENT',
+          'status': tx.status == 'APPROVED' ? 'SETTLED' : tx.status,
+        });
+      }
+      if (rentPayment.transactions.isEmpty && rentPayment.status == 'PENDING') {
+         activities.add({
+          'id': 'rent_due',
+          'title': 'Monthly Rent Payment',
+          'subtitle': 'Apartment Rent',
+          'amount': rentPayment.amountDue - rentPayment.amountPaid,
+          'date': _currentMonth!.startsOn,
+          'type': 'RENT',
+          'status': 'PENDING',
+        });
+      }
+    }
+
+    // Add Expenses
+    for (var expense in _currentMonth!.expenses) {
+      // If user is involved in the split or paid it
+      final isPayer = expense.paidById == memberId;
+      final split = expense.splits.where((s) => s.memberId == memberId).firstOrNull;
+      
+      if (isPayer || split != null) {
+        activities.add({
+          'id': expense.id,
+          'title': expense.title,
+          'subtitle': 'Split with Roommates',
+          'amount': split != null ? split.amount : expense.amount, // amount user owes or paid
+          'date': expense.createdAt,
+          'type': 'EXPENSE',
+          'status': 'PENDING', // Expenses don't have individual settled status in the model directly, usually handled by debts
+        });
+      }
+    }
+
+    // Sort by date descending
+    activities.sort((a, b) => (b['date'] as DateTime).compareTo(a['date'] as DateTime));
+    return activities;
+  }
 }
