@@ -6,7 +6,7 @@ class ItemExtractor {
   
   static final _ignoreKeywords = [
     'gst', 'cgst', 'sgst', 'vat', 'tax', 'total', 'discount', 
-    'cash', 'card', 'change', 'subtotal', 'service', 'delivery'
+    'cash', 'card', 'change', 'subtotal', 'service', 'delivery', 'bill'
   ];
 
   // 1. <Name> <Qty> <UnitPrice> <TotalPrice> OR <SlNo> <Name> <Qty> <UnitPrice> <TotalPrice>
@@ -17,7 +17,7 @@ class ItemExtractor {
 
   // 2. <Name> <Qty> <Price>
   static final _patternQtyAfterName = RegExp(
-    r"^([a-zA-Z0-9\s\&\.\-\(\)\']+?)\s+(?:(?:x\s*(\d+))|(?:(\d+)\s*x)|(?:qty[\s:]*(\d+))|(\d+))?\s*(?:rs\.?|inr|usd|€|£|\$|₹)?\s*([0-9]+\.[0-9]{2})$",
+    r"^([a-zA-Z0-9\s\&\.\-\(\)\']+?)\s+(?:(?:x\s*(\d+))|(?:(\d+)\s*x)|(?:qty[\s:]*(\d+))|(\d+))?\s+(?:rs\.?|inr|usd|€|£|\$|₹)?\s*([0-9]+\.[0-9]{2})$",
     caseSensitive: false,
   );
 

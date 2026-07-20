@@ -10,8 +10,55 @@ class OCRService {
       final inputImage = InputImage.fromFile(imageFile);
       final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
       
-      // Extract the full raw text
-      return recognizedText.text;
+      // Extract all TextLines
+      List<TextLine> allLines = [];
+      for (TextBlock block in recognizedText.blocks) {
+        for (TextLine line in block.lines) {
+          allLines.add(line);
+        }
+      }
+
+      if (allLines.isEmpty) return "";
+
+      // Sort by vertical position (top Y coordinate)
+      allLines.sort((a, b) => a.boundingBox.top.compareTo(b.boundingBox.top));
+
+      String stitchedText = '';
+      double currentTop = allLines.first.boundingBox.top;
+      double currentBottom = allLines.first.boundingBox.bottom;
+      List<TextLine> currentLineGroup = [];
+
+      for (var line in allLines) {
+        double centerY = line.boundingBox.top + (line.boundingBox.height / 2);
+        
+        // Check if the line belongs to the current horizontal row
+        // We use a tolerance of a few pixels to account for slight skews
+        if (centerY >= (currentTop - 10) && centerY <= (currentBottom + 10)) {
+          currentLineGroup.add(line);
+          if (line.boundingBox.bottom > currentBottom) {
+            currentBottom = line.boundingBox.bottom;
+          }
+          if (line.boundingBox.top < currentTop) {
+            currentTop = line.boundingBox.top;
+          }
+        } else {
+          // Sort the row items from left to right
+          currentLineGroup.sort((a, b) => a.boundingBox.left.compareTo(b.boundingBox.left));
+          stitchedText += currentLineGroup.map((e) => e.text).join(' ') + '\n';
+          
+          currentLineGroup = [line];
+          currentTop = line.boundingBox.top;
+          currentBottom = line.boundingBox.bottom;
+        }
+      }
+
+      // Add the final group
+      if (currentLineGroup.isNotEmpty) {
+        currentLineGroup.sort((a, b) => a.boundingBox.left.compareTo(b.boundingBox.left));
+        stitchedText += currentLineGroup.map((e) => e.text).join(' ') + '\n';
+      }
+
+      return stitchedText;
     } catch (e) {
       if (e.toString().contains('MissingPluginException') || Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         // Fallback mock string for desktop debugging
