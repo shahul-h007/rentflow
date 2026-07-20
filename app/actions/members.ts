@@ -5,10 +5,10 @@ import { revalidatePath } from "next/cache";
 
 export async function addMember(data: { name: string; email?: string; phone?: string; role: "ADMIN" | "MEMBER" }) {
   const house = await prisma.house.findFirst();
-  if (!house) throw new Error("No house configured");
+  if (!house) return { success: false, error: "No house configured" };
 
   if (!data.email) {
-    throw new Error("An email is required to provision a member login.");
+    return { success: false, error: "An email is required to provision a member login." };
   }
 
   // 1. Generate a random 8-character password
@@ -30,7 +30,7 @@ export async function addMember(data: { name: string; email?: string; phone?: st
 
   if (authError || !authData.user) {
     console.error("Supabase Auth Error:", authError);
-    throw new Error(authError?.message || "Failed to provision authentication account.");
+    return { success: false, error: authError?.message || "Failed to provision authentication account." };
   }
 
   // 4. Create the User in Prisma (mapping to authId)
@@ -93,6 +93,7 @@ export async function updateMember(id: string, data: { name: string; email?: str
   });
 
   revalidatePath("/admin/members");
+  return { success: true };
 }
 
 export async function toggleMemberStatus(id: string, currentlyActive: boolean) {
@@ -115,11 +116,12 @@ export async function toggleMemberStatus(id: string, currentlyActive: boolean) {
   }
 
   revalidatePath("/admin/members");
+  return { success: true };
 }
 
 export async function deleteMember(id: string) {
   const member = await prisma.member.findUnique({ where: { id }, include: { user: true } });
-  if (!member) throw new Error("Member not found");
+  if (!member) return { success: false, error: "Member not found" };
 
   try {
     // 1. Delete Member from Prisma
@@ -145,7 +147,7 @@ export async function deleteMember(id: string) {
     return { success: true };
   } catch (error: any) {
     console.error(error);
-    throw new Error("Cannot delete this member because they are linked to existing rent payments or debts. Please deactivate them instead.");
+    return { success: false, error: "Cannot delete this member because they are linked to existing rent payments or debts. Please deactivate them instead." };
   }
 }
 

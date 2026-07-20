@@ -41,10 +41,14 @@ export default function MembersClient({ members }: { members: any[] }) {
     setLoading(true);
     try {
       const res = await addMember({ name, email, phone, role: "MEMBER" });
-      if (res?.success && res?.password) {
+      if (res?.error) {
+        alert(res.error);
+      } else if (res?.success && res?.password) {
         setGeneratedCredentials({ email, password: res.password });
+        setIsAddModalOpen(false);
+      } else if (res?.success) {
+        setIsAddModalOpen(false);
       }
-      setIsAddModalOpen(false);
     } catch (err: any) {
       alert(err.message || "Failed to add member");
     } finally {
@@ -54,19 +58,30 @@ export default function MembersClient({ members }: { members: any[] }) {
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    await updateMember(currentMember.id, { name, email, phone });
-    setLoading(false);
-    setIsEditModalOpen(false);
+    try {
+      const res = await updateMember(currentMember.id, { name, email, phone });
+      if (res?.error) {
+        alert(res.error);
+      } else {
+        setIsEditModalOpen(false);
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to update member");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Are you absolutely sure you want to completely delete ${name} from the database? This cannot be undone.`)) {
       setProcessingId(id);
       try {
-        await deleteMember(id);
+        const res = await deleteMember(id);
+        if (res?.error) {
+          alert(res.error);
+        }
       } catch (err: any) {
-        alert(err.message);
+        alert(err.message || "Failed to delete member");
       } finally {
         setProcessingId(null);
       }
