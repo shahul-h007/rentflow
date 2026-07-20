@@ -17,7 +17,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int _currentIndex = 1;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -53,45 +53,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FBF9),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF9FBF9),
+        backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.menu, color: Color(0xFF1E4620)),
-          onPressed: () {},
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "RentFlow Member",
+              style: GoogleFonts.outfit(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1E4620),
+              ),
+            ),
+            if (auth.currentUser != null)
+              Text(
+                "Logged in as: ${auth.currentUser!.email}",
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: const Color(0xFF8E8E93),
+                ),
+              ),
+          ],
         ),
-        title: Text(
-          "RentFlow Splitter",
-          style: GoogleFonts.outfit(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF0D7B49),
-          ),
-        ),
-        centerTitle: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Color(0xFF1E4620)),
             onPressed: () => dashboard.loadDashboard(silent: false),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: GestureDetector(
-              onTap: _handleSignOut,
-              child: CircleAvatar(
-                radius: 16,
-                backgroundColor: const Color(0xFFE3F6F1),
-                child: Text(
-                  auth.currentUser?.email.substring(0, 1).toUpperCase() ?? "U",
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E4620),
-                  ),
-                ),
-              ),
-            ),
+          IconButton(
+            icon: const Icon(Icons.logout_outlined, color: Color(0xFF8B2D21)),
+            onPressed: _handleSignOut,
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: const Color(0xFFE5E5EA),
+            height: 1.0,
+          ),
+        ),
       ),
       body: dashboard.isLoading
           ? const Center(
@@ -148,14 +149,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onRefresh: () => dashboard.loadDashboard(silent: true),
                   color: const Color(0xFF1E4620),
                   child: IndexedStack(
-                    index: _currentIndex == 0 ? 1 : _currentIndex, // Prevent 0 from being accessed as a tab
+                    index: _currentIndex,
                     children: [
-                      const SizedBox.shrink(), // Index 0 is Scan
                       _HomeTab(
                         month: dashboard.currentMonth!,
                         currentUser: auth.currentUser,
                         formatCurrency: _formatCurrency,
-                        dashboard: dashboard,
+                        onNavigateToTab: (index) {
+                          setState(() {
+                            _currentIndex = index;
+                          });
+                        },
+                      ),
+                      _RentTab(
+                        month: dashboard.currentMonth!,
+                        house: dashboard.house,
+                        currentUser: auth.currentUser,
+                        formatCurrency: _formatCurrency,
                       ),
                       _SharedBillsTab(
                         month: dashboard.currentMonth!,
@@ -169,46 +179,50 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         currentUser: auth.currentUser,
                         formatCurrency: _formatCurrency,
                       ),
+                      _ProfileTab(
+                        currentUser: auth.currentUser,
+                      ),
                     ],
                   ),
                 ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          if (index == 0) {
-            // Scan action
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ScannerScreen()),
-            );
-          } else {
-            setState(() {
-              _currentIndex = index;
-            });
-          }
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
         },
+        type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
-        indicatorColor: const Color(0xFFE3F6F1),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long, color: Color(0xFF0D7B49)),
-            label: 'Scan',
+        selectedItemColor: const Color(0xFF1E4620),
+        unselectedItemColor: const Color(0xFF8E8E93),
+        selectedLabelStyle: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: GoogleFonts.inter(fontSize: 12),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.fact_check_outlined),
-            selectedIcon: Icon(Icons.fact_check, color: Color(0xFF0D7B49)),
-            label: 'Review',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_add_alt_1_outlined),
-            selectedIcon: Icon(Icons.person_add_alt_1, color: Color(0xFF0D7B49)),
-            label: 'Assign',
-          ),
-          NavigationDestination(
+          BottomNavigationBarItem(
             icon: Icon(Icons.payments_outlined),
-            selectedIcon: Icon(Icons.payments, color: Color(0xFF0D7B49)),
-            label: 'Settlement',
+            activeIcon: Icon(Icons.payments),
+            label: 'Rent',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.receipt_long_outlined),
+            activeIcon: Icon(Icons.receipt_long),
+            label: 'Bills',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.handshake_outlined),
+            activeIcon: Icon(Icons.handshake),
+            label: 'Settlements',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),
@@ -223,35 +237,42 @@ class _HomeTab extends StatelessWidget {
   final RentMonth month;
   final UserAccount? currentUser;
   final String Function(int) formatCurrency;
-  final DashboardProvider dashboard;
+  final Function(int) onNavigateToTab;
 
   const _HomeTab({
     required this.month,
     required this.currentUser,
     required this.formatCurrency,
-    required this.dashboard,
+    required this.onNavigateToTab,
   });
 
   @override
   Widget build(BuildContext context) {
-    final memberId = currentUser?.memberId;
-    final totalOutstanding = dashboard.getUserTotalOutstanding(memberId);
-    final recentActivities = dashboard.getRecentActivity(memberId);
-
-    // Calculate overall rent progress
-    final totalRent = month.rent;
-    final collectedRent = month.rentPayments.fold(0, (sum, p) => sum + p.amountPaid);
-    final rentProgress = totalRent > 0 ? collectedRent / totalRent : 0.0;
+    final collected = month.rentPayments.fold(0, (sum, p) => sum + p.amountPaid);
+    final remaining = month.rent - collected;
+    final totalUtilities = month.utilities.fold(0, (sum, u) => sum + u.amount);
+    final totalExpenses = month.expenses.fold(0, (sum, e) => sum + e.amount);
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Total Outstanding Card
+        // Hero Section
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFF0D7B49),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF1E4620), Color(0xFF2A5C2D)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
             borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1E4620).withValues(alpha: 0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,144 +280,140 @@ class _HomeTab extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: Text(
-                      "Total Outstanding",
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  Text(
+                    "${DateFormat('MMMM yyyy').format(month.startsOn)} Status",
+                    style: GoogleFonts.inter(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                      letterSpacing: 1,
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF59E0B),
-                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      "Due in 4 days", // TODO: dynamically calculate days until rent due
+                      month.status.toUpperCase(),
                       style: GoogleFonts.inter(
                         color: Colors.white,
-                        fontSize: 11,
                         fontWeight: FontWeight.bold,
+                        fontSize: 10,
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    formatCurrency(totalOutstanding),
-                    style: GoogleFonts.outfit(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      "Rent + Bills",
-                      style: GoogleFonts.inter(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ],
+              Text(
+                formatCurrency(collected),
+                style: GoogleFonts.outfit(
+                  color: Colors.white,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // TODO: Navigate to details or scroll to bottom
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF0D7B49),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        "View Details",
-                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                         // Action for Pay Now
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF59E0B),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        "Pay Now",
-                        style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 4),
+              Text(
+                "Total Rent Collected",
+                style: GoogleFonts.inter(
+                  color: Colors.white70,
+                  fontSize: 13,
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 24),
-        
-        // Quick Actions
-        Text(
-          "Quick Actions",
-          style: GoogleFonts.outfit(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1C1C1E),
-          ),
-        ),
-        const SizedBox(height: 12),
+
+        // Grid of Stats
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 1.2,
+          childAspectRatio: 1.4,
           children: [
-            _QuickActionCard(
-              title: "Pay Rent",
-              icon: Icons.home_work_outlined,
-              isPrimary: true,
-              onTap: () {
-              },
+            _MetricCard(
+              title: "Rent Remaining",
+              value: formatCurrency(remaining),
+              badgeText: "${month.rentPayments.where((p) => p.status != 'PAID').length} Open",
+              badgeColor: const Color(0xFFFFE4A3),
+              textColor: const Color(0xFF875B00),
+              icon: Icons.pending_actions,
             ),
-            _QuickActionCard(
-              title: "Split Food Bill",
-              icon: Icons.restaurant_outlined,
-              isPrimary: false,
-              iconColor: const Color(0xFF8B5A2B),
+            _MetricCard(
+              title: "Utilities Dues",
+              value: formatCurrency(totalUtilities),
+              badgeText: "${month.utilities.length} Bills",
+              badgeColor: const Color(0xFFE5DDFF),
+              textColor: const Color(0xFF4A3AFF),
+              icon: Icons.receipt_long,
+            ),
+            _MetricCard(
+              title: "Shared Expenses",
+              value: formatCurrency(totalExpenses),
+              badgeText: "${month.expenses.length} Records",
+              badgeColor: const Color(0xFFFFD9D4),
+              textColor: const Color(0xFF8B2D21),
+              icon: Icons.fastfood,
+            ),
+            _MetricCard(
+              title: "My Share",
+              value: formatCurrency(
+                month.expenses.where((e) => e.paidBy == currentUser?.memberId).fold(0, (sum, e) => sum + e.amount)
+              ),
+              badgeText: "Expense",
+              badgeColor: const Color(0xFFE3F6F1),
+              textColor: const Color(0xFF1E4620),
+              icon: Icons.person,
+            ),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Text(
+          "Quick Actions",
+          style: GoogleFonts.outfit(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF1C1C1E),
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Quick Actions Grid
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 2.5,
+          children: [
+            _QuickActionBtn(
+              title: "Pay Rent",
+              icon: Icons.payments_outlined,
+              color: const Color(0xFF1E4620),
+              onTap: () => onNavigateToTab(1),
+            ),
+            _QuickActionBtn(
+              title: "Add Bill",
+              icon: Icons.add_circle_outline,
+              color: const Color(0xFF4A3AFF),
+              onTap: () => onNavigateToTab(2),
+            ),
+            _QuickActionBtn(
+              title: "Settle Debts",
+              icon: Icons.handshake_outlined,
+              color: const Color(0xFF8B2D21),
+              onTap: () => onNavigateToTab(3),
+            ),
+            _QuickActionBtn(
+              title: "Scan Receipt",
+              icon: Icons.document_scanner_outlined,
+              color: const Color(0xFF0F766E),
               onTap: () {
                 Navigator.push(
                   context,
@@ -404,314 +421,9 @@ class _HomeTab extends StatelessWidget {
                 );
               },
             ),
-            _QuickActionCard(
-              title: "Utilities",
-              icon: Icons.bolt_outlined,
-              isPrimary: false,
-              onTap: () {
-              },
-            ),
-            _QuickActionCard(
-              title: "Expenses",
-              icon: Icons.receipt_long_outlined,
-              isPrimary: false,
-              onTap: () {
-              },
-            ),
           ],
-        ),
-        const SizedBox(height: 32),
-        
-        // Status Overview
-        Text(
-          "Status Overview",
-          style: GoogleFonts.outfit(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1C1C1E),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              // Rent Progress Card
-              Container(
-                width: 240,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFF2F2F7)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Rent Progress",
-                              style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF8E8E93)),
-                            ),
-                            Text(
-                              "${DateFormat('MMMM').format(month.startsOn)} Rent",
-                              style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF0D7B49)),
-                            ),
-                          ],
-                        ),
-                        Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            SizedBox(
-                              width: 36,
-                              height: 36,
-                              child: CircularProgressIndicator(
-                                value: rentProgress,
-                                backgroundColor: const Color(0xFFE3F6F1),
-                                color: const Color(0xFF0D7B49),
-                                strokeWidth: 4,
-                              ),
-                            ),
-                            Text(
-                              "${(rentProgress * 100).round()}%",
-                              style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF0D7B49)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Collected", style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF1C1C1E))),
-                        Text("${formatCurrency(collectedRent)} / ${formatCurrency(totalRent)}", style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    LinearProgressIndicator(
-                      value: rentProgress,
-                      backgroundColor: const Color(0xFFE3F6F1),
-                      color: const Color(0xFF0D7B49),
-                      borderRadius: BorderRadius.circular(4),
-                      minHeight: 6,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Savings / Expenses Card placeholder
-              Container(
-                width: 120,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFF2F2F7)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFAF1E3),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.savings_outlined, color: Color(0xFF8B5A2B), size: 20),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      formatCurrency(month.expenses.fold(0, (sum, e) => sum + e.amount)),
-                      style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: const Color(0xFF8B5A2B)),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 32),
-        
-        // Recent Activity
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Recent Activity",
-              style: GoogleFonts.outfit(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF1C1C1E),
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Text(
-                "View All",
-                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF0D7B49)),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xFFF2F2F7)),
-          ),
-          child: recentActivities.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Center(child: Text("No recent activity.", style: GoogleFonts.inter(color: Colors.grey))),
-                )
-              : ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: recentActivities.length > 3 ? 3 : recentActivities.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1, color: Color(0xFFF2F2F7)),
-                  itemBuilder: (context, index) {
-                    final item = recentActivities[index];
-                    
-                    Color iconColor = const Color(0xFF0D7B49);
-                    Color iconBg = const Color(0xFFE3F6F1);
-                    IconData iconData = Icons.home_outlined;
-                    
-                    if (item['type'] == 'EXPENSE') {
-                      iconColor = const Color(0xFF8B5A2B);
-                      iconBg = const Color(0xFFFAF1E3);
-                      iconData = Icons.shopping_basket_outlined;
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: iconBg,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(iconData, color: iconColor, size: 20),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item['title'],
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF1C1C1E),
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  "${item['subtitle']} • ${DateFormat('MMMM').format(item['date'])}",
-                                  style: GoogleFonts.inter(
-                                    fontSize: 11,
-                                    color: const Color(0xFF8E8E93),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                "-${formatCurrency(item['amount'])}",
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF1C1C1E),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: item['status'] == 'SETTLED' ? const Color(0xFFE3F6F1) : const Color(0xFFFAF1E3),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  item['status'].toString().toUpperCase(),
-                                  style: GoogleFonts.inter(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.bold,
-                                    color: item['status'] == 'SETTLED' ? const Color(0xFF0D7B49) : const Color(0xFF8B5A2B),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
         ),
       ],
-    );
-  }
-}
-
-class _QuickActionCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final bool isPrimary;
-  final Color? iconColor;
-  final VoidCallback onTap;
-
-  const _QuickActionCard({
-    required this.title,
-    required this.icon,
-    this.isPrimary = false,
-    this.iconColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isPrimary ? const Color(0xFF0D7B49) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: isPrimary ? null : Border.all(color: const Color(0xFFF2F2F7)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: isPrimary ? Colors.white : (iconColor ?? const Color(0xFF1C1C1E)),
-              size: 28,
-            ),
-            const Spacer(),
-            Text(
-              title,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: isPrimary ? Colors.white : const Color(0xFF1C1C1E),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -1133,12 +845,61 @@ class _RentTab extends StatelessWidget {
   }
 }
 
+class _QuickActionBtn extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickActionBtn({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: GoogleFonts.inter(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _MetricCard extends StatelessWidget {
   final String title;
   final String value;
   final String badgeText;
   final Color badgeColor;
   final Color textColor;
+  final IconData? icon;
 
   const _MetricCard({
     required this.title,
@@ -1146,6 +907,7 @@ class _MetricCard extends StatelessWidget {
     required this.badgeText,
     required this.badgeColor,
     required this.textColor,
+    this.icon,
   });
 
   @override
@@ -1156,6 +918,13 @@ class _MetricCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: const Color(0xFFE5E5EA)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          )
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1165,13 +934,23 @@ class _MetricCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: const Color(0xFF8E8E93),
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                child: Row(
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, size: 14, color: const Color(0xFF8E8E93)),
+                      const SizedBox(width: 4),
+                    ],
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          color: const Color(0xFF8E8E93),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Container(

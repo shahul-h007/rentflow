@@ -5,11 +5,13 @@ class TotalExtractor {
     RegExp(r'^total[\s:]*([0-9]+)$', caseSensitive: false),
   ];
 
-  /// Should always return the last valid total in the receipt.
   static double? extract(List<String> lines) {
     double? lastTotal;
     
-    for (final line in lines) {
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i];
+      bool foundOnLine = false;
+
       for (final pattern in _patterns) {
         final match = pattern.firstMatch(line);
         if (match != null && match.groupCount >= 1) {
@@ -18,8 +20,23 @@ class TotalExtractor {
             final parsed = double.tryParse(amountStr.replaceAll(',', ''));
             if (parsed != null) {
               lastTotal = parsed;
+              foundOnLine = true;
             }
           }
+        }
+      }
+
+      // If we saw "total" but no price on the same line, check the next few lines
+      if (!foundOnLine && RegExp(r'\btotal\b', caseSensitive: false).hasMatch(line)) {
+        for (int j = i + 1; j < i + 3 && j < lines.length; j++) {
+           final priceMatch = RegExp(r'^([0-9]+\.[0-9]{2})$').firstMatch(lines[j].trim());
+           if (priceMatch != null) {
+              final parsed = double.tryParse(priceMatch.group(1)!);
+              if (parsed != null && lastTotal == null) {
+                 lastTotal = parsed;
+                 break;
+              }
+           }
         }
       }
     }

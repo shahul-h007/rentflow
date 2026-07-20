@@ -9,8 +9,13 @@ class ItemExtractor {
     'cash', 'card', 'change', 'subtotal', 'service', 'delivery'
   ];
 
-  static final _itemPattern = RegExp(
-    r'^([a-zA-Z\s\&\.\-]+?)\s+(?:(?:x\s*(\d+))|(?:(\d+)\s*x)|(?:qty[\s:]*(\d+))|(\d+))?\s*(?:rs\.?|inr|usd|€|£|₹)?\s*([0-9]+\.[0-9]{2})$',
+  static final _patternQtyAfterName = RegExp(
+    r'^([a-zA-Z\s\&\.\-]+?)\s+(?:(?:x\s*(\d+))|(?:(\d+)\s*x)|(?:qty[\s:]*(\d+))|(\d+))?\s*(?:rs\.?|inr|usd|€|£|\$|₹)?\s*([0-9]+\.[0-9]{2})$',
+    caseSensitive: false,
+  );
+
+  static final _patternQtyBeforeName = RegExp(
+    r'^(\d+)\s+([a-zA-Z\s\&\.\-]+?)\s+(?:rs\.?|inr|usd|€|£|\$|₹)?\s*([0-9]+\.[0-9]{2})$',
     caseSensitive: false,
   );
 
@@ -28,27 +33,36 @@ class ItemExtractor {
 
       if (shouldIgnore) continue;
 
-      final match = _itemPattern.firstMatch(line);
+      // Try Qty AFTER Name
+      var match = _patternQtyAfterName.firstMatch(line);
       if (match != null) {
         final name = match.group(1)?.trim();
         if (name == null || name.length < 3) continue;
 
-        // Extract quantity from the various capture groups
         final qtyStr = match.group(2) ?? match.group(3) ?? match.group(4) ?? match.group(5);
         final qty = qtyStr != null ? (double.tryParse(qtyStr) ?? 1.0) : 1.0;
-
         final priceStr = match.group(6);
         final totalPrice = priceStr != null ? (double.tryParse(priceStr) ?? 0.0) : 0.0;
 
         if (totalPrice > 0) {
-          items.add(ReceiptItem(
-            id: _uuid.v4(),
-            name: name,
-            quantity: qty,
-            unitPrice: totalPrice / qty, // Derived
-            totalPrice: totalPrice,
-            confidence: 90.0,
-          ));
+          items.add(ReceiptItem(id: _uuid.v4(), name: name, quantity: qty, unitPrice: totalPrice / qty, totalPrice: totalPrice, confidence: 90.0));
+        }
+        continue; // Processed this line
+      }
+
+      // Try Qty BEFORE Name
+      match = _patternQtyBeforeName.firstMatch(line);
+      if (match != null) {
+        final qtyStr = match.group(1);
+        final qty = qtyStr != null ? (double.tryParse(qtyStr) ?? 1.0) : 1.0;
+        final name = match.group(2)?.trim();
+        if (name == null || name.length < 3) continue;
+        
+        final priceStr = match.group(3);
+        final totalPrice = priceStr != null ? (double.tryParse(priceStr) ?? 0.0) : 0.0;
+
+        if (totalPrice > 0) {
+          items.add(ReceiptItem(id: _uuid.v4(), name: name, quantity: qty, unitPrice: totalPrice / qty, totalPrice: totalPrice, confidence: 90.0));
         }
       }
     }
