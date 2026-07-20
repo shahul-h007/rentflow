@@ -324,7 +324,7 @@ class _HomeTab extends StatelessWidget {
           "Quick Actions",
           style: GoogleFonts.outfit(
             fontSize: 15,
-            fontWeight: 600,
+            fontWeight: FontWeight.w600,
             color: const Color(0xFF1E4620),
           ),
         ),

@@ -70,7 +70,7 @@ class _ReceiptReviewScreenState extends ConsumerState<ReceiptReviewScreen> {
     );
 
     if (updated == true) {
-      final qty = int.tryParse(qtyCtrl.text) ?? 1;
+      final qty = double.tryParse(qtyCtrl.text) ?? 1.0;
       final price = double.tryParse(priceCtrl.text) ?? 0.0;
       final newItem = item.copyWith(
         name: nameCtrl.text,
