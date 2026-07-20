@@ -31,6 +31,10 @@ class OCRService {
   
   /// Disposes the text recognizer to free up resources
   void dispose() {
-    _textRecognizer.close();
+    try {
+      _textRecognizer.close();
+    } catch (e) {
+      // Ignore on unsupported platforms
+    }
   }
 }
