@@ -42,5 +42,5 @@ export default async function HouseManagement() {
     );
   }
 
-  return <HouseClient house={house} />;
+  return <HouseClient house={JSON.parse(JSON.stringify(house))} />;
 }

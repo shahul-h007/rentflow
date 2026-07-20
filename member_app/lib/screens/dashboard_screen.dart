@@ -1329,7 +1329,7 @@ class _SettlementsTab extends StatelessWidget {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 16),
             ],
 
@@ -1354,7 +1354,7 @@ class _SettlementsTab extends StatelessWidget {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 24),
             ],
           ],

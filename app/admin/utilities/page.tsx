@@ -42,7 +42,10 @@ export default async function UtilitiesPage() {
             <p>You need to generate rent for the current month before adding utility bills.</p>
           </div>
         ) : (
-          <UtilitiesClient month={openMonth} members={members} />
+          <UtilitiesClient 
+            month={JSON.parse(JSON.stringify(openMonth))} 
+            members={JSON.parse(JSON.stringify(members))} 
+          />
         )}
       </div>
     </div>

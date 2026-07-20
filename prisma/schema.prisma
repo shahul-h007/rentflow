@@ -72,6 +72,8 @@ model Member {
   debtors Debt[] @relation("debtor")
   creditors Debt[] @relation("creditor")
   rentTransactions RentPaymentTransaction[] @relation("rent_transaction_payer")
+  scannedReceipts Receipt[]
+  itemAssignments ExpenseAssignment[]
   @@index([active])
   @@map("members")
 }
@@ -221,6 +223,7 @@ model House {
   updatedAt DateTime @updatedAt @map("updated_at")
   members Member[]
   months Month[]
+  receipts Receipt[]
   @@map("houses")
 }
 
@@ -251,4 +254,84 @@ model Notification {
   
   @@index([memberId, isRead])
   @@map("notifications")
+}
+
+model Receipt {
+  id            String   @id @default(uuid())
+  houseId       String   @map("house_id")
+  scannedById   String   @map("scanned_by_id")
+  merchant      String?
+  receiptNumber String?  @map("receipt_number")
+  date          DateTime?
+  currency      String   @default("INR")
+  subtotal      Int      @default(0)
+  gst           Int      @default(0)
+  serviceCharge Int      @default(0) @map("service_charge")
+  deliveryCharge Int     @default(0) @map("delivery_charge")
+  tip           Int      @default(0)
+  discount      Int      @default(0)
+  roundOff      Int      @default(0) @map("round_off")
+  grandTotal    Int      @default(0) @map("grand_total")
+  
+  imageUrl      String?  @map("image_url")
+  rawOcrText    String?  @map("raw_ocr_text")
+  parserVersion String?  @map("parser_version")
+  
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  house         House    @relation(fields: [houseId], references: [id])
+  scannedBy     Member   @relation(fields: [scannedById], references: [id])
+  items         ReceiptItem[]
+  
+  @@index([houseId])
+  @@map("receipts")
+}
+
+model ReceiptItem {
+  id          String   @id @default(uuid())
+  receiptId   String   @map("receipt_id")
+  name        String
+  quantity    Float    @default(1)
+  unitPrice   Int      @map("unit_price") 
+  totalPrice  Int      @map("total_price") 
+  
+  assignments ExpenseAssignment[]
+
+  receipt     Receipt  @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  
+  @@map("receipt_items")
+}
+
+model ExpenseAssignment {
+  id             String   @id @default(uuid())
+  receiptItemId  String   @map("receipt_item_id")
+  memberId       String   @map("member_id")
+  splitMethod    String   @default("EQUAL") @map("split_method")
+  quantity       Float?
+  percentage     Float?
+  amount         Int      @default(0)
+
+  receiptItem    ReceiptItem @relation(fields: [receiptItemId], references: [id], onDelete: Cascade)
+  member         Member      @relation(fields: [memberId], references: [id])
+  
+  @@unique([receiptItemId, memberId])
+  @@map("expense_assignments")
+}
+
+model MemberCalculation {
+  id            String   @id @default(uuid())
+  receiptId     String   @map("receipt_id")
+  memberId      String   @map("member_id")
+  foodAmount    Int      @default(0) @map("food_amount")
+  gstAmount     Int      @default(0) @map("gst_amount")
+  discountAmount Int     @default(0) @map("discount_amount")
+  serviceAmount Int      @default(0) @map("service_amount")
+  deliveryAmount Int     @default(0) @map("delivery_amount")
+  tipAmount     Int      @default(0) @map("tip_amount")
+  roundOffAmount Int     @default(0) @map("round_off_amount")
+  finalAmount   Int      @default(0) @map("final_amount")
+  
+  @@unique([receiptId, memberId])
+  @@map("member_calculations")
 }

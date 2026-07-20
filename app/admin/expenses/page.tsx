@@ -42,7 +42,10 @@ export default async function ExpensesPage() {
             <p>You need to generate rent for the current month before adding expenses.</p>
           </div>
         ) : (
-          <ExpensesClient month={openMonth} members={members} />
+          <ExpensesClient 
+            month={JSON.parse(JSON.stringify(openMonth))} 
+            members={JSON.parse(JSON.stringify(members))} 
+          />
         )}
       </div>
     </div>
