@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../core/calculation/calculation_engine.dart';
+import 'package:provider/provider.dart' as provider;
+import '../../../../providers/dashboard_provider.dart';
 import '../../domain/models/expense_assignment.dart';
 import '../../domain/models/parsed_receipt.dart';
 import '../../providers/parsed_receipt_provider.dart';
-import '../../providers/receipt_provider.dart';
+import 'bill_review_screen.dart';
 
 class AssignmentScreen extends ConsumerStatefulWidget {
   const AssignmentScreen({super.key});
@@ -18,12 +19,25 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
   final List<ExpenseAssignment> _assignments = [];
   final _uuid = const Uuid();
 
-  // Mock members for now (Phase 6 UI mock)
-  final List<Map<String, String>> _houseMembers = [
-    {'id': 'm1', 'name': 'Alice'},
-    {'id': 'm2', 'name': 'Bob'},
-    {'id': 'm3', 'name': 'Charlie'},
-  ];
+  List<Map<String, String>> _getAllMembers(ParsedReceipt receipt, DashboardProvider dashboard) {
+    List<Map<String, String>> all = [];
+    
+    // Add selected house members
+    for (String id in receipt.houseMemberIds) {
+      final hm = dashboard.members.firstWhere(
+        (m) => m.id == id,
+        orElse: () => throw Exception('Member not found'),
+      );
+      all.add({'id': hm.id, 'name': hm.name, 'isExternal': 'false'});
+    }
+    
+    // Add external members
+    for (var em in receipt.externalMembers) {
+      all.add({'id': em['id']!, 'name': em['name']!, 'isExternal': 'true'});
+    }
+    
+    return all;
+  }
 
   void _assignItem(String itemId, String memberId, SplitMethod method) {
     setState(() {
@@ -36,33 +50,54 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
       ));
     });
   }
+  
+  void _unassignItem(String itemId, String memberId) {
+    setState(() {
+      _assignments.removeWhere((a) => a.receiptItemId == itemId && a.memberId == memberId);
+    });
+  }
+  
+  void _changeMethod(String itemId, SplitMethod newMethod) {
+    setState(() {
+      final currentItemAssignments = _assignments.where((a) => a.receiptItemId == itemId).toList();
+      for (var a in currentItemAssignments) {
+        _assignments.remove(a);
+        _assignments.add(a.copyWith(splitMethod: newMethod));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final parsedReceipt = ref.watch(parsedReceiptProvider);
+    final dashboardProvider = provider.Provider.of<DashboardProvider>(context);
 
     if (parsedReceipt == null) {
-      return const Scaffold(
-        body: Center(child: Text('No receipt parsed')),
-      );
+      return const Scaffold(body: Center(child: Text('No receipt parsed')));
     }
+    
+    final allMembers = _getAllMembers(parsedReceipt, dashboardProvider);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF9FBF9),
       appBar: AppBar(
         title: const Text('Assign Items'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.calculate),
-            onPressed: () => _showCalculationPreview(context, parsedReceipt),
-          )
-        ],
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
       body: ListView.builder(
+        padding: const EdgeInsets.all(16),
         itemCount: parsedReceipt.items.length,
         itemBuilder: (context, index) {
           final item = parsedReceipt.items[index];
+          final itemAssignments = _assignments.where((a) => a.receiptItemId == item.id).toList();
+          final currentMethod = itemAssignments.isNotEmpty ? itemAssignments.first.splitMethod : SplitMethod.equal;
+          
           return Card(
-            margin: const EdgeInsets.all(8),
+            elevation: 1,
+            color: Colors.white,
+            margin: const EdgeInsets.only(bottom: 16),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -75,24 +110,52 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                         child: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                       const SizedBox(width: 8),
-                      Text('₹${item.totalPrice.toStringAsFixed(2)}'),
+                      Text('₹${item.totalPrice.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E4620))),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  
+                  // Split Method Selector
+                  Row(
+                    children: [
+                      const Text('Split Method:', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      const SizedBox(width: 8),
+                      DropdownButton<SplitMethod>(
+                        value: currentMethod,
+                        isDense: true,
+                        underline: const SizedBox(),
+                        items: SplitMethod.values.map((m) {
+                          return DropdownMenuItem(
+                            value: m,
+                            child: Text(m.name.toUpperCase(), style: const TextStyle(fontSize: 12)),
+                          );
+                        }).toList(),
+                        onChanged: (newMethod) {
+                          if (newMethod != null) {
+                            _changeMethod(item.id, newMethod);
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                  
                   const Divider(),
+                  
+                  // Members
                   Wrap(
                     spacing: 8,
-                    children: _houseMembers.map((m) {
+                    children: allMembers.map((m) {
                       final isAssigned = _assignments.any((a) => a.receiptItemId == item.id && a.memberId == m['id']!);
                       return FilterChip(
                         label: Text(m['name']!),
                         selected: isAssigned,
+                        selectedColor: const Color(0xFF1E4620).withOpacity(0.2),
+                        checkmarkColor: const Color(0xFF1E4620),
                         onSelected: (selected) {
                           if (selected) {
-                            _assignItem(item.id, m['id']!, SplitMethod.equal);
+                            _assignItem(item.id, m['id']!, currentMethod);
                           } else {
-                            setState(() {
-                              _assignments.removeWhere((a) => a.receiptItemId == item.id && a.memberId == m['id']!);
-                            });
+                            _unassignItem(item.id, m['id']!);
                           }
                         },
                       );
@@ -104,81 +167,25 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showCalculationPreview(context, parsedReceipt),
-        label: const Text('Calculate'),
-        icon: const Icon(Icons.check),
-      ),
-    );
-  }
-
-  void _showCalculationPreview(BuildContext context, ParsedReceipt receipt) {
-    final result = CalculationEngine.calculate(receipt: receipt, assignments: _assignments);
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Calculation Preview', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 16),
-              if (!result.isValid)
-                const Text('Errors detected!', style: TextStyle(color: Colors.red)),
-              ...result.members.map((m) {
-                final name = _houseMembers.firstWhere((hm) => hm['id'] == m.memberId, orElse: () => {'name': m.memberId})['name'];
-                return ListTile(
-                  title: Text(name!),
-                  subtitle: Text('Food: ₹${m.food.toStringAsFixed(2)} | Tax: ₹${m.gst.toStringAsFixed(2)}'),
-                  trailing: Text('₹${m.finalAmount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                );
-              }),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () async {
-                    try {
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (_) => const Center(child: CircularProgressIndicator()),
-                      );
-                      
-                      await ref.read(receiptRepositoryProvider).saveExpense(
-                        receipt: receipt,
-                        assignments: _assignments,
-                      );
-                      
-                      if (context.mounted) {
-                        Navigator.pop(context); // pop loading
-                        Navigator.pop(context); // pop bottom sheet
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Saved successfully!')),
-                        );
-                        // Navigate back to home or history
-                        Navigator.of(context).popUntil((route) => route.isFirst);
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        Navigator.pop(context); // pop loading
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error saving: $e')),
-                        );
-                      }
-                    }
-                  },
-                  child: const Text('Confirm & Save'),
-                ),
-              )
-            ],
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: FilledButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => BillReviewScreen(assignments: _assignments)),
+              );
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF1E4620),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('Review Bill', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

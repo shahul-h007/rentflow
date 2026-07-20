@@ -21,6 +21,8 @@ abstract class ParsedReceipt with _$ParsedReceipt {
     double? roundOff,
     double? grandTotal,
     required List<ReceiptItem> items,
+    @Default([]) List<String> houseMemberIds,
+    @Default([]) List<Map<String, String>> externalMembers,
     @Default('1.0.0') String parserVersion,
     @Default(100.0) double overallConfidence,
   }) = _ParsedReceipt;

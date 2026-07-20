@@ -5,7 +5,7 @@ import '../../../../core/receipt/ocr_service.dart';
 import '../../../../core/parser/regex_receipt_parser.dart';
 import '../../providers/scanner_state_provider.dart';
 import '../../providers/parsed_receipt_provider.dart';
-import 'receipt_review_screen.dart';
+import 'bill_review_screen.dart';
 
 class ParsingScreen extends ConsumerStatefulWidget {
   const ParsingScreen({super.key});
@@ -59,7 +59,7 @@ class _ParsingScreenState extends ConsumerState<ParsingScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const ReceiptReviewScreen()),
+          MaterialPageRoute(builder: (_) => const BillReviewScreen(assignments: [])),
         );
       }
 

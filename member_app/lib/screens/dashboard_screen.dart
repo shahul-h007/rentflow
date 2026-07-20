@@ -7,7 +7,7 @@ import '../providers/auth_provider.dart';
 import '../providers/dashboard_provider.dart';
 import '../models/models.dart';
 import 'login_screen.dart';
-import '../features/food_splitter/presentation/screens/scanner_screen.dart';
+import '../features/food_splitter/presentation/screens/food_splitter_home_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,6 +18,12 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _currentIndex = 0;
+  
+  void _onNavigateToTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   void initState() {
@@ -154,7 +160,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       _HomeTab(
                         month: dashboard.currentMonth!,
                         currentUser: auth.currentUser,
+                        house: dashboard.house,
+                        members: dashboard.members,
+                        debts: dashboard.debts,
                         formatCurrency: _formatCurrency,
+                        onNavigateToTab: _onNavigateToTab,
                       ),
                       _RentTab(
                         month: dashboard.currentMonth!,
@@ -180,6 +190,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                 ),
+      floatingActionButton: _currentIndex == 0 && dashboard.currentMonth != null
+          ? FloatingActionButton(
+              onPressed: () {
+                _showAddBottomSheet(context);
+              },
+              backgroundColor: const Color(0xFF1E4620),
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -223,132 +242,514 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+  void _showAddBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Create New", style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              _buildBottomSheetItem(
+                context,
+                icon: Icons.restaurant,
+                title: 'Split Food Bill',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const FoodSplitterHomeScreen()),
+                  );
+                },
+              ),
+              _buildBottomSheetItem(
+                context,
+                icon: Icons.shopping_cart_outlined,
+                title: 'Add Shared Expense',
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming Soon!')));
+                },
+              ),
+              _buildBottomSheetItem(
+                context,
+                icon: Icons.payments_outlined,
+                title: 'Pay Rent',
+                onTap: () {
+                  Navigator.pop(context);
+                  _onNavigateToTab(1);
+                },
+              ),
+              _buildBottomSheetItem(
+                context,
+                icon: Icons.lightbulb_outline,
+                title: 'Add Utility Bill',
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Coming Soon!')));
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBottomSheetItem(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E4620).withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: const Color(0xFF1E4620)),
+      ),
+      title: Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+      onTap: onTap,
+    );
+  }
 }
 
 // ============================================
 // HOME TAB
-// ============================================
-class _HomeTab extends StatelessWidget {
+// ===========================================
+class _HomeTab extends StatefulWidget {
   final RentMonth month;
   final UserAccount? currentUser;
+  final HouseInfo? house;
+  final List<Member> members;
+  final List<Debt> debts;
   final String Function(int) formatCurrency;
+  final void Function(int) onNavigateToTab;
 
   const _HomeTab({
     required this.month,
     required this.currentUser,
+    required this.house,
+    required this.members,
+    required this.debts,
     required this.formatCurrency,
+    required this.onNavigateToTab,
   });
 
   @override
+  State<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<_HomeTab> with SingleTickerProviderStateMixin {
+  List<Activity> _activities = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _buildActivities();
+  }
+
+  @override
+  void didUpdateWidget(covariant _HomeTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.month != widget.month || oldWidget.debts != widget.debts) {
+      _buildActivities();
+    }
+  }
+
+  void _buildActivities() {
+    List<Activity> list = [];
+    
+    // 1. Shared Expenses
+    for (var exp in widget.month.expenses) {
+      list.add(Activity(
+        id: exp.id,
+        type: ActivityType.expense,
+        title: exp.title.isNotEmpty ? exp.title : 'Shared Expense',
+        subtitle: 'Paid by ${exp.paidBy?.name ?? 'Someone'}',
+        amount: exp.amount,
+        createdAt: exp.createdAt,
+        icon: Icons.shopping_cart_outlined,
+        color: const Color(0xFF8B2D21),
+      ));
+    }
+
+    // 2. Rent Payments (Using transactions)
+    for (var rp in widget.month.rentPayments) {
+      for (var tx in rp.transactions) {
+        if (tx.status == 'PAID' || tx.status == 'SUBMITTED' || tx.status == 'VERIFIED') {
+          list.add(Activity(
+            id: tx.id,
+            type: ActivityType.rent,
+            title: 'Rent Payment',
+            subtitle: '${tx.payer?.name ?? 'Someone'} paid rent',
+            amount: tx.amount,
+            createdAt: tx.paidAt,
+            icon: Icons.home_outlined,
+            color: const Color(0xFF1E4620),
+          ));
+        }
+      }
+    }
+
+    // 3. Utilities
+    for (var util in widget.month.utilities) {
+      // Use dueDate as createdAt or now if null since we just want it in feed
+      list.add(Activity(
+        id: util.id,
+        type: ActivityType.utility,
+        title: util.name,
+        subtitle: 'Utility Bill added',
+        amount: util.amount,
+        createdAt: util.dueDate ?? DateTime.now().subtract(const Duration(days: 1)),
+        icon: Icons.lightbulb_outline,
+        color: const Color(0xFF4A3AFF),
+      ));
+    }
+
+    // 4. Settlements
+    for (var debt in widget.debts) {
+      if (debt.status == 'SETTLED' || debt.settledAmount > 0) {
+        list.add(Activity(
+          id: debt.id,
+          type: ActivityType.settlement,
+          title: 'Settlement',
+          subtitle: '${debt.debtor?.name ?? 'Someone'} paid ${debt.creditor?.name ?? 'Someone'}',
+          amount: debt.settledAmount > 0 ? debt.settledAmount : debt.amount,
+          createdAt: DateTime.now().subtract(const Duration(hours: 2)), // Mocking recent time for MVP since debt lacks timestamp
+          icon: Icons.handshake_outlined,
+          color: const Color(0xFF875B00),
+        ));
+      }
+    }
+
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    setState(() {
+      _activities = list.take(10).toList();
+    });
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  }
+
+  String _getTimeAgo(DateTime date) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+    if (diff.inHours < 24) return '${diff.inHours}h ago';
+    if (diff.inDays == 1) return 'Yesterday';
+    return DateFormat('MMM d').format(date);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final collected = month.rentPayments.fold(0, (sum, p) => sum + p.amountPaid);
-    final remaining = month.rent - collected;
-    final totalUtilities = month.utilities.fold(0, (sum, u) => sum + u.amount);
-    final totalExpenses = month.expenses.fold(0, (sum, e) => sum + e.amount);
+    final remainingRent = widget.month.rent - widget.month.rentPayments.fold<int>(0, (sum, p) => sum + p.amountPaid);
+    final totalExpenses = widget.month.expenses.fold<int>(0, (sum, e) => sum + e.amount);
+    final pendingSettlements = widget.debts.where((d) => d.status == 'OPEN').fold<int>(0, (sum, d) => sum + d.amount);
+    final utilities = widget.month.utilities.fold<int>(0, (sum, u) => sum + u.amount);
+
+    final userName = widget.currentUser?.email.split('@').first ?? 'User';
+    final capitalizedName = userName.isNotEmpty ? '${userName[0].toUpperCase()}${userName.substring(1)}' : 'User';
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Date / Status header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "${DateFormat('MMMM yyyy').format(month.startsOn)} Billing Status",
-              style: GoogleFonts.outfit(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF1E4620),
+        // Greeting
+        TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.0, end: 1.0),
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOut,
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(0, 10 * (1 - value)),
+                child: child,
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFFE3F6F1),
-                borderRadius: BorderRadius.circular(100),
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "👋 ${_getGreeting()}",
+                style: GoogleFonts.outfit(fontSize: 16, color: const Color(0xFF8E8E93)),
               ),
-              child: Text(
-                month.status,
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1E4620),
-                ),
+              const SizedBox(height: 4),
+              Text(
+                "Welcome back, $capitalizedName",
+                style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: const Color(0xFF1E4620)),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
+        
+        const SizedBox(height: 24),
 
-        // Grid of Stats
+        // House Overview Card
+        Card(
+          elevation: 2,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      widget.house?.name ?? "House Overview",
+                      style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF1E4620)),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: widget.month.status == 'OPEN' ? const Color(0xFFE3F6F1) : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Text(
+                        '${DateFormat('MMM').format(widget.month.startsOn)} ${widget.month.status}',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: widget.month.status == 'OPEN' ? const Color(0xFF1E4620) : Colors.grey.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(child: _buildOverviewItem("Members", widget.members.length.toString())),
+                    Expanded(child: _buildOverviewItem("Pending Rent", widget.formatCurrency(remainingRent))),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1),
+                ),
+                Row(
+                  children: [
+                    Expanded(child: _buildOverviewItem("Expenses", widget.formatCurrency(totalExpenses))),
+                    Expanded(child: _buildOverviewItem("Settlements", widget.formatCurrency(pendingSettlements))),
+                  ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1),
+                ),
+                Row(
+                  children: [
+                    Expanded(child: _buildOverviewItem("Utilities", widget.formatCurrency(utilities))),
+                    const Expanded(child: SizedBox()), // empty slot for balance
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // Quick Actions
+        Text(
+          "Quick Actions",
+          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF1E4620)),
+        ),
+        const SizedBox(height: 12),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
-          childAspectRatio: 1.4,
+          childAspectRatio: 1.8,
           children: [
-            _MetricCard(
-              title: "Rent Collected",
-              value: formatCurrency(collected),
-              badgeText: "${((collected / month.rent) * 100).round()}% Recv",
-              badgeColor: const Color(0xFFE3F6F1),
-              textColor: const Color(0xFF1E4620),
+            _QuickActionCard(
+              icon: Icons.home_filled,
+              title: "Pay Rent",
+              description: "Settle this month's rent",
+              onTap: () => widget.onNavigateToTab(1),
             ),
-            _MetricCard(
-              title: "Rent Remaining",
-              value: formatCurrency(remaining),
-              badgeText: "${month.rentPayments.where((p) => p.status != 'PAID').length} Open",
-              badgeColor: const Color(0xFFFFE4A3),
-              textColor: const Color(0xFF875B00),
+            _QuickActionCard(
+              icon: Icons.restaurant,
+              title: "Food Splitter",
+              description: "Split restaurant bills",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FoodSplitterHomeScreen()),
+                );
+              },
             ),
-            _MetricCard(
-              title: "Utilities Dues",
-              value: formatCurrency(totalUtilities),
-              badgeText: "${month.utilities.length} Bills",
-              badgeColor: const Color(0xFFE5DDFF),
-              textColor: const Color(0xFF4A3AFF),
+            _QuickActionCard(
+              icon: Icons.shopping_cart,
+              title: "Expense",
+              description: "Add a shared house bill",
+              onTap: () => widget.onNavigateToTab(2),
             ),
-            _MetricCard(
-              title: "Shared Expenses",
-              value: formatCurrency(totalExpenses),
-              badgeText: "${month.expenses.length} Records",
-              badgeColor: const Color(0xFFFFD9D4),
-              textColor: const Color(0xFF8B2D21),
+            _QuickActionCard(
+              icon: Icons.handshake,
+              title: "Settle",
+              description: "Clear your pending debts",
+              onTap: () => widget.onNavigateToTab(3),
             ),
           ],
         ),
-        const SizedBox(height: 24),
+
+        const SizedBox(height: 32),
+
+        // Recent Activity
         Text(
-          "Quick Actions",
-          style: GoogleFonts.outfit(
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-            color: const Color(0xFF1E4620),
-          ),
+          "Recent Activity",
+          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF1E4620)),
         ),
         const SizedBox(height: 12),
-        ElevatedButton.icon(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ScannerScreen()),
-            );
-          },
-          icon: const Icon(Icons.document_scanner),
-          label: const Text("Scan Food Receipt"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1E4620),
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            alignment: Alignment.center,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        
+        if (_activities.isEmpty)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 32),
+              child: Column(
+                children: [
+                  const Text("📭", style: TextStyle(fontSize: 48)),
+                  const SizedBox(height: 16),
+                  Text(
+                    "No activity yet",
+                    style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.w600, color: const Color(0xFF1E4620)),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Your recent expenses, payments\nand settlements will appear here.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
             ),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _activities.length,
+            separatorBuilder: (_, __) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              final act = _activities[index];
+              return ListTile(
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: act.color.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(act.icon, color: act.color, size: 24),
+                ),
+                title: Text(act.title, style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                subtitle: Text(act.subtitle, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600)),
+                trailing: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      widget.formatCurrency(act.amount),
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: const Color(0xFF1E4620)),
+                    ),
+                    Text(
+                      _getTimeAgo(act.createdAt),
+                      style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          
+        const SizedBox(height: 48), // Padding for FAB
+      ],
+    );
+  }
+
+  Widget _buildOverviewItem(String title, String value) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600)),
+        const SizedBox(height: 4),
+        Text(value, style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF1E4620))),
+      ],
+    );
+  }
+}
+
+class _QuickActionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final VoidCallback onTap;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 20, color: const Color(0xFF1E4620)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF1E4620)),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                description,
+                style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -770,77 +1171,6 @@ class _RentTab extends StatelessWidget {
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final String badgeText;
-  final Color badgeColor;
-  final Color textColor;
-
-  const _MetricCard({
-    required this.title,
-    required this.value,
-    required this.badgeText,
-    required this.badgeColor,
-    required this.textColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE5E5EA)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: const Color(0xFF8E8E93),
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: badgeColor,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  badgeText,
-                  style: GoogleFonts.inter(
-                    fontSize: 9,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Text(
-            value,
-            style: GoogleFonts.outfit(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFF1C1C1E),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ============================================
 // EXPENSES TAB

@@ -1,3 +1,5 @@
+export 'activity.dart';
+
 class HouseInfo {
   final String id;
   final String name;

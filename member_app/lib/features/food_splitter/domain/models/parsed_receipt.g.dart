@@ -24,6 +24,16 @@ _ParsedReceipt _$ParsedReceiptFromJson(Map<String, dynamic> json) =>
       items: (json['items'] as List<dynamic>)
           .map((e) => ReceiptItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      houseMemberIds:
+          (json['houseMemberIds'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      externalMembers:
+          (json['externalMembers'] as List<dynamic>?)
+              ?.map((e) => Map<String, String>.from(e as Map))
+              .toList() ??
+          const [],
       parserVersion: json['parserVersion'] as String? ?? '1.0.0',
       overallConfidence:
           (json['overallConfidence'] as num?)?.toDouble() ?? 100.0,
@@ -45,6 +55,8 @@ Map<String, dynamic> _$ParsedReceiptToJson(_ParsedReceipt instance) =>
       'roundOff': instance.roundOff,
       'grandTotal': instance.grandTotal,
       'items': instance.items,
+      'houseMemberIds': instance.houseMemberIds,
+      'externalMembers': instance.externalMembers,
       'parserVersion': instance.parserVersion,
       'overallConfidence': instance.overallConfidence,
     };

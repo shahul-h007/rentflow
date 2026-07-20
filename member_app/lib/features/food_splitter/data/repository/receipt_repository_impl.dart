@@ -61,7 +61,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
 
     // 3. Post to Next.js Backend
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:3000/api/food-splitter/save'), // Android Emulator localhost
+      Uri.parse('https://rentflow-sooty.vercel.app/api/food-splitter/save'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(payload),
     );
@@ -78,7 +78,7 @@ class ReceiptRepositoryImpl implements ReceiptRepository {
     
     // 2. Fetch from Next.js Backend
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:3000/api/food-splitter/history?houseId=$houseId'),
+      Uri.parse('https://rentflow-sooty.vercel.app/api/food-splitter/history?houseId=$houseId'),
     );
 
     if (response.statusCode != 200) {

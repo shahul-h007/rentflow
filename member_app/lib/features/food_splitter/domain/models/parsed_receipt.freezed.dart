@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ParsedReceipt {
 
- String get id; String? get merchant; String? get receiptNumber; String? get date; String? get currency; double? get subtotal; double? get gst; double? get serviceCharge; double? get deliveryCharge; double? get tip; double? get discount; double? get roundOff; double? get grandTotal; List<ReceiptItem> get items; String get parserVersion; double get overallConfidence;
+ String get id; String? get merchant; String? get receiptNumber; String? get date; String? get currency; double? get subtotal; double? get gst; double? get serviceCharge; double? get deliveryCharge; double? get tip; double? get discount; double? get roundOff; double? get grandTotal; List<ReceiptItem> get items; List<String> get houseMemberIds; List<Map<String, String>> get externalMembers; String get parserVersion; double get overallConfidence;
 /// Create a copy of ParsedReceipt
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ParsedReceiptCopyWith<ParsedReceipt> get copyWith => _$ParsedReceiptCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParsedReceipt&&(identical(other.id, id) || other.id == id)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.receiptNumber, receiptNumber) || other.receiptNumber == receiptNumber)&&(identical(other.date, date) || other.date == date)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.subtotal, subtotal) || other.subtotal == subtotal)&&(identical(other.gst, gst) || other.gst == gst)&&(identical(other.serviceCharge, serviceCharge) || other.serviceCharge == serviceCharge)&&(identical(other.deliveryCharge, deliveryCharge) || other.deliveryCharge == deliveryCharge)&&(identical(other.tip, tip) || other.tip == tip)&&(identical(other.discount, discount) || other.discount == discount)&&(identical(other.roundOff, roundOff) || other.roundOff == roundOff)&&(identical(other.grandTotal, grandTotal) || other.grandTotal == grandTotal)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.parserVersion, parserVersion) || other.parserVersion == parserVersion)&&(identical(other.overallConfidence, overallConfidence) || other.overallConfidence == overallConfidence));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ParsedReceipt&&(identical(other.id, id) || other.id == id)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.receiptNumber, receiptNumber) || other.receiptNumber == receiptNumber)&&(identical(other.date, date) || other.date == date)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.subtotal, subtotal) || other.subtotal == subtotal)&&(identical(other.gst, gst) || other.gst == gst)&&(identical(other.serviceCharge, serviceCharge) || other.serviceCharge == serviceCharge)&&(identical(other.deliveryCharge, deliveryCharge) || other.deliveryCharge == deliveryCharge)&&(identical(other.tip, tip) || other.tip == tip)&&(identical(other.discount, discount) || other.discount == discount)&&(identical(other.roundOff, roundOff) || other.roundOff == roundOff)&&(identical(other.grandTotal, grandTotal) || other.grandTotal == grandTotal)&&const DeepCollectionEquality().equals(other.items, items)&&const DeepCollectionEquality().equals(other.houseMemberIds, houseMemberIds)&&const DeepCollectionEquality().equals(other.externalMembers, externalMembers)&&(identical(other.parserVersion, parserVersion) || other.parserVersion == parserVersion)&&(identical(other.overallConfidence, overallConfidence) || other.overallConfidence == overallConfidence));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,merchant,receiptNumber,date,currency,subtotal,gst,serviceCharge,deliveryCharge,tip,discount,roundOff,grandTotal,const DeepCollectionEquality().hash(items),parserVersion,overallConfidence);
+int get hashCode => Object.hash(runtimeType,id,merchant,receiptNumber,date,currency,subtotal,gst,serviceCharge,deliveryCharge,tip,discount,roundOff,grandTotal,const DeepCollectionEquality().hash(items),const DeepCollectionEquality().hash(houseMemberIds),const DeepCollectionEquality().hash(externalMembers),parserVersion,overallConfidence);
 
 @override
 String toString() {
-  return 'ParsedReceipt(id: $id, merchant: $merchant, receiptNumber: $receiptNumber, date: $date, currency: $currency, subtotal: $subtotal, gst: $gst, serviceCharge: $serviceCharge, deliveryCharge: $deliveryCharge, tip: $tip, discount: $discount, roundOff: $roundOff, grandTotal: $grandTotal, items: $items, parserVersion: $parserVersion, overallConfidence: $overallConfidence)';
+  return 'ParsedReceipt(id: $id, merchant: $merchant, receiptNumber: $receiptNumber, date: $date, currency: $currency, subtotal: $subtotal, gst: $gst, serviceCharge: $serviceCharge, deliveryCharge: $deliveryCharge, tip: $tip, discount: $discount, roundOff: $roundOff, grandTotal: $grandTotal, items: $items, houseMemberIds: $houseMemberIds, externalMembers: $externalMembers, parserVersion: $parserVersion, overallConfidence: $overallConfidence)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ParsedReceiptCopyWith<$Res>  {
   factory $ParsedReceiptCopyWith(ParsedReceipt value, $Res Function(ParsedReceipt) _then) = _$ParsedReceiptCopyWithImpl;
 @useResult
 $Res call({
- String id, String? merchant, String? receiptNumber, String? date, String? currency, double? subtotal, double? gst, double? serviceCharge, double? deliveryCharge, double? tip, double? discount, double? roundOff, double? grandTotal, List<ReceiptItem> items, String parserVersion, double overallConfidence
+ String id, String? merchant, String? receiptNumber, String? date, String? currency, double? subtotal, double? gst, double? serviceCharge, double? deliveryCharge, double? tip, double? discount, double? roundOff, double? grandTotal, List<ReceiptItem> items, List<String> houseMemberIds, List<Map<String, String>> externalMembers, String parserVersion, double overallConfidence
 });
 
 
@@ -65,7 +65,7 @@ class _$ParsedReceiptCopyWithImpl<$Res>
 
 /// Create a copy of ParsedReceipt
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? merchant = freezed,Object? receiptNumber = freezed,Object? date = freezed,Object? currency = freezed,Object? subtotal = freezed,Object? gst = freezed,Object? serviceCharge = freezed,Object? deliveryCharge = freezed,Object? tip = freezed,Object? discount = freezed,Object? roundOff = freezed,Object? grandTotal = freezed,Object? items = null,Object? parserVersion = null,Object? overallConfidence = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? merchant = freezed,Object? receiptNumber = freezed,Object? date = freezed,Object? currency = freezed,Object? subtotal = freezed,Object? gst = freezed,Object? serviceCharge = freezed,Object? deliveryCharge = freezed,Object? tip = freezed,Object? discount = freezed,Object? roundOff = freezed,Object? grandTotal = freezed,Object? items = null,Object? houseMemberIds = null,Object? externalMembers = null,Object? parserVersion = null,Object? overallConfidence = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,merchant: freezed == merchant ? _self.merchant : merchant // ignore: cast_nullable_to_non_nullable
@@ -81,7 +81,9 @@ as double?,discount: freezed == discount ? _self.discount : discount // ignore: 
 as double?,roundOff: freezed == roundOff ? _self.roundOff : roundOff // ignore: cast_nullable_to_non_nullable
 as double?,grandTotal: freezed == grandTotal ? _self.grandTotal : grandTotal // ignore: cast_nullable_to_non_nullable
 as double?,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<ReceiptItem>,parserVersion: null == parserVersion ? _self.parserVersion : parserVersion // ignore: cast_nullable_to_non_nullable
+as List<ReceiptItem>,houseMemberIds: null == houseMemberIds ? _self.houseMemberIds : houseMemberIds // ignore: cast_nullable_to_non_nullable
+as List<String>,externalMembers: null == externalMembers ? _self.externalMembers : externalMembers // ignore: cast_nullable_to_non_nullable
+as List<Map<String, String>>,parserVersion: null == parserVersion ? _self.parserVersion : parserVersion // ignore: cast_nullable_to_non_nullable
 as String,overallConfidence: null == overallConfidence ? _self.overallConfidence : overallConfidence // ignore: cast_nullable_to_non_nullable
 as double,
   ));
@@ -168,10 +170,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? merchant,  String? receiptNumber,  String? date,  String? currency,  double? subtotal,  double? gst,  double? serviceCharge,  double? deliveryCharge,  double? tip,  double? discount,  double? roundOff,  double? grandTotal,  List<ReceiptItem> items,  String parserVersion,  double overallConfidence)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String? merchant,  String? receiptNumber,  String? date,  String? currency,  double? subtotal,  double? gst,  double? serviceCharge,  double? deliveryCharge,  double? tip,  double? discount,  double? roundOff,  double? grandTotal,  List<ReceiptItem> items,  List<String> houseMemberIds,  List<Map<String, String>> externalMembers,  String parserVersion,  double overallConfidence)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ParsedReceipt() when $default != null:
-return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.currency,_that.subtotal,_that.gst,_that.serviceCharge,_that.deliveryCharge,_that.tip,_that.discount,_that.roundOff,_that.grandTotal,_that.items,_that.parserVersion,_that.overallConfidence);case _:
+return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.currency,_that.subtotal,_that.gst,_that.serviceCharge,_that.deliveryCharge,_that.tip,_that.discount,_that.roundOff,_that.grandTotal,_that.items,_that.houseMemberIds,_that.externalMembers,_that.parserVersion,_that.overallConfidence);case _:
   return orElse();
 
 }
@@ -189,10 +191,10 @@ return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.cur
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? merchant,  String? receiptNumber,  String? date,  String? currency,  double? subtotal,  double? gst,  double? serviceCharge,  double? deliveryCharge,  double? tip,  double? discount,  double? roundOff,  double? grandTotal,  List<ReceiptItem> items,  String parserVersion,  double overallConfidence)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String? merchant,  String? receiptNumber,  String? date,  String? currency,  double? subtotal,  double? gst,  double? serviceCharge,  double? deliveryCharge,  double? tip,  double? discount,  double? roundOff,  double? grandTotal,  List<ReceiptItem> items,  List<String> houseMemberIds,  List<Map<String, String>> externalMembers,  String parserVersion,  double overallConfidence)  $default,) {final _that = this;
 switch (_that) {
 case _ParsedReceipt():
-return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.currency,_that.subtotal,_that.gst,_that.serviceCharge,_that.deliveryCharge,_that.tip,_that.discount,_that.roundOff,_that.grandTotal,_that.items,_that.parserVersion,_that.overallConfidence);case _:
+return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.currency,_that.subtotal,_that.gst,_that.serviceCharge,_that.deliveryCharge,_that.tip,_that.discount,_that.roundOff,_that.grandTotal,_that.items,_that.houseMemberIds,_that.externalMembers,_that.parserVersion,_that.overallConfidence);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +211,10 @@ return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.cur
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? merchant,  String? receiptNumber,  String? date,  String? currency,  double? subtotal,  double? gst,  double? serviceCharge,  double? deliveryCharge,  double? tip,  double? discount,  double? roundOff,  double? grandTotal,  List<ReceiptItem> items,  String parserVersion,  double overallConfidence)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String? merchant,  String? receiptNumber,  String? date,  String? currency,  double? subtotal,  double? gst,  double? serviceCharge,  double? deliveryCharge,  double? tip,  double? discount,  double? roundOff,  double? grandTotal,  List<ReceiptItem> items,  List<String> houseMemberIds,  List<Map<String, String>> externalMembers,  String parserVersion,  double overallConfidence)?  $default,) {final _that = this;
 switch (_that) {
 case _ParsedReceipt() when $default != null:
-return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.currency,_that.subtotal,_that.gst,_that.serviceCharge,_that.deliveryCharge,_that.tip,_that.discount,_that.roundOff,_that.grandTotal,_that.items,_that.parserVersion,_that.overallConfidence);case _:
+return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.currency,_that.subtotal,_that.gst,_that.serviceCharge,_that.deliveryCharge,_that.tip,_that.discount,_that.roundOff,_that.grandTotal,_that.items,_that.houseMemberIds,_that.externalMembers,_that.parserVersion,_that.overallConfidence);case _:
   return null;
 
 }
@@ -224,7 +226,7 @@ return $default(_that.id,_that.merchant,_that.receiptNumber,_that.date,_that.cur
 @JsonSerializable()
 
 class _ParsedReceipt implements ParsedReceipt {
-  const _ParsedReceipt({required this.id, this.merchant, this.receiptNumber, this.date, this.currency, this.subtotal, this.gst, this.serviceCharge, this.deliveryCharge, this.tip, this.discount, this.roundOff, this.grandTotal, required final  List<ReceiptItem> items, this.parserVersion = '1.0.0', this.overallConfidence = 100.0}): _items = items;
+  const _ParsedReceipt({required this.id, this.merchant, this.receiptNumber, this.date, this.currency, this.subtotal, this.gst, this.serviceCharge, this.deliveryCharge, this.tip, this.discount, this.roundOff, this.grandTotal, required final  List<ReceiptItem> items, final  List<String> houseMemberIds = const [], final  List<Map<String, String>> externalMembers = const [], this.parserVersion = '1.0.0', this.overallConfidence = 100.0}): _items = items,_houseMemberIds = houseMemberIds,_externalMembers = externalMembers;
   factory _ParsedReceipt.fromJson(Map<String, dynamic> json) => _$ParsedReceiptFromJson(json);
 
 @override final  String id;
@@ -247,6 +249,20 @@ class _ParsedReceipt implements ParsedReceipt {
   return EqualUnmodifiableListView(_items);
 }
 
+ final  List<String> _houseMemberIds;
+@override@JsonKey() List<String> get houseMemberIds {
+  if (_houseMemberIds is EqualUnmodifiableListView) return _houseMemberIds;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_houseMemberIds);
+}
+
+ final  List<Map<String, String>> _externalMembers;
+@override@JsonKey() List<Map<String, String>> get externalMembers {
+  if (_externalMembers is EqualUnmodifiableListView) return _externalMembers;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_externalMembers);
+}
+
 @override@JsonKey() final  String parserVersion;
 @override@JsonKey() final  double overallConfidence;
 
@@ -263,16 +279,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ParsedReceipt&&(identical(other.id, id) || other.id == id)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.receiptNumber, receiptNumber) || other.receiptNumber == receiptNumber)&&(identical(other.date, date) || other.date == date)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.subtotal, subtotal) || other.subtotal == subtotal)&&(identical(other.gst, gst) || other.gst == gst)&&(identical(other.serviceCharge, serviceCharge) || other.serviceCharge == serviceCharge)&&(identical(other.deliveryCharge, deliveryCharge) || other.deliveryCharge == deliveryCharge)&&(identical(other.tip, tip) || other.tip == tip)&&(identical(other.discount, discount) || other.discount == discount)&&(identical(other.roundOff, roundOff) || other.roundOff == roundOff)&&(identical(other.grandTotal, grandTotal) || other.grandTotal == grandTotal)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.parserVersion, parserVersion) || other.parserVersion == parserVersion)&&(identical(other.overallConfidence, overallConfidence) || other.overallConfidence == overallConfidence));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ParsedReceipt&&(identical(other.id, id) || other.id == id)&&(identical(other.merchant, merchant) || other.merchant == merchant)&&(identical(other.receiptNumber, receiptNumber) || other.receiptNumber == receiptNumber)&&(identical(other.date, date) || other.date == date)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.subtotal, subtotal) || other.subtotal == subtotal)&&(identical(other.gst, gst) || other.gst == gst)&&(identical(other.serviceCharge, serviceCharge) || other.serviceCharge == serviceCharge)&&(identical(other.deliveryCharge, deliveryCharge) || other.deliveryCharge == deliveryCharge)&&(identical(other.tip, tip) || other.tip == tip)&&(identical(other.discount, discount) || other.discount == discount)&&(identical(other.roundOff, roundOff) || other.roundOff == roundOff)&&(identical(other.grandTotal, grandTotal) || other.grandTotal == grandTotal)&&const DeepCollectionEquality().equals(other._items, _items)&&const DeepCollectionEquality().equals(other._houseMemberIds, _houseMemberIds)&&const DeepCollectionEquality().equals(other._externalMembers, _externalMembers)&&(identical(other.parserVersion, parserVersion) || other.parserVersion == parserVersion)&&(identical(other.overallConfidence, overallConfidence) || other.overallConfidence == overallConfidence));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,merchant,receiptNumber,date,currency,subtotal,gst,serviceCharge,deliveryCharge,tip,discount,roundOff,grandTotal,const DeepCollectionEquality().hash(_items),parserVersion,overallConfidence);
+int get hashCode => Object.hash(runtimeType,id,merchant,receiptNumber,date,currency,subtotal,gst,serviceCharge,deliveryCharge,tip,discount,roundOff,grandTotal,const DeepCollectionEquality().hash(_items),const DeepCollectionEquality().hash(_houseMemberIds),const DeepCollectionEquality().hash(_externalMembers),parserVersion,overallConfidence);
 
 @override
 String toString() {
-  return 'ParsedReceipt(id: $id, merchant: $merchant, receiptNumber: $receiptNumber, date: $date, currency: $currency, subtotal: $subtotal, gst: $gst, serviceCharge: $serviceCharge, deliveryCharge: $deliveryCharge, tip: $tip, discount: $discount, roundOff: $roundOff, grandTotal: $grandTotal, items: $items, parserVersion: $parserVersion, overallConfidence: $overallConfidence)';
+  return 'ParsedReceipt(id: $id, merchant: $merchant, receiptNumber: $receiptNumber, date: $date, currency: $currency, subtotal: $subtotal, gst: $gst, serviceCharge: $serviceCharge, deliveryCharge: $deliveryCharge, tip: $tip, discount: $discount, roundOff: $roundOff, grandTotal: $grandTotal, items: $items, houseMemberIds: $houseMemberIds, externalMembers: $externalMembers, parserVersion: $parserVersion, overallConfidence: $overallConfidence)';
 }
 
 
@@ -283,7 +299,7 @@ abstract mixin class _$ParsedReceiptCopyWith<$Res> implements $ParsedReceiptCopy
   factory _$ParsedReceiptCopyWith(_ParsedReceipt value, $Res Function(_ParsedReceipt) _then) = __$ParsedReceiptCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String? merchant, String? receiptNumber, String? date, String? currency, double? subtotal, double? gst, double? serviceCharge, double? deliveryCharge, double? tip, double? discount, double? roundOff, double? grandTotal, List<ReceiptItem> items, String parserVersion, double overallConfidence
+ String id, String? merchant, String? receiptNumber, String? date, String? currency, double? subtotal, double? gst, double? serviceCharge, double? deliveryCharge, double? tip, double? discount, double? roundOff, double? grandTotal, List<ReceiptItem> items, List<String> houseMemberIds, List<Map<String, String>> externalMembers, String parserVersion, double overallConfidence
 });
 
 
@@ -300,7 +316,7 @@ class __$ParsedReceiptCopyWithImpl<$Res>
 
 /// Create a copy of ParsedReceipt
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? merchant = freezed,Object? receiptNumber = freezed,Object? date = freezed,Object? currency = freezed,Object? subtotal = freezed,Object? gst = freezed,Object? serviceCharge = freezed,Object? deliveryCharge = freezed,Object? tip = freezed,Object? discount = freezed,Object? roundOff = freezed,Object? grandTotal = freezed,Object? items = null,Object? parserVersion = null,Object? overallConfidence = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? merchant = freezed,Object? receiptNumber = freezed,Object? date = freezed,Object? currency = freezed,Object? subtotal = freezed,Object? gst = freezed,Object? serviceCharge = freezed,Object? deliveryCharge = freezed,Object? tip = freezed,Object? discount = freezed,Object? roundOff = freezed,Object? grandTotal = freezed,Object? items = null,Object? houseMemberIds = null,Object? externalMembers = null,Object? parserVersion = null,Object? overallConfidence = null,}) {
   return _then(_ParsedReceipt(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,merchant: freezed == merchant ? _self.merchant : merchant // ignore: cast_nullable_to_non_nullable
@@ -316,7 +332,9 @@ as double?,discount: freezed == discount ? _self.discount : discount // ignore: 
 as double?,roundOff: freezed == roundOff ? _self.roundOff : roundOff // ignore: cast_nullable_to_non_nullable
 as double?,grandTotal: freezed == grandTotal ? _self.grandTotal : grandTotal // ignore: cast_nullable_to_non_nullable
 as double?,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<ReceiptItem>,parserVersion: null == parserVersion ? _self.parserVersion : parserVersion // ignore: cast_nullable_to_non_nullable
+as List<ReceiptItem>,houseMemberIds: null == houseMemberIds ? _self._houseMemberIds : houseMemberIds // ignore: cast_nullable_to_non_nullable
+as List<String>,externalMembers: null == externalMembers ? _self._externalMembers : externalMembers // ignore: cast_nullable_to_non_nullable
+as List<Map<String, String>>,parserVersion: null == parserVersion ? _self.parserVersion : parserVersion // ignore: cast_nullable_to_non_nullable
 as String,overallConfidence: null == overallConfidence ? _self.overallConfidence : overallConfidence // ignore: cast_nullable_to_non_nullable
 as double,
   ));
