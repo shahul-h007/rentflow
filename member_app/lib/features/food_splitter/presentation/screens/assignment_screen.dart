@@ -71,7 +71,10 @@ class _AssignmentScreenState extends ConsumerState<AssignmentScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Expanded(
+                        child: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      ),
+                      const SizedBox(width: 8),
                       Text('₹${item.totalPrice.toStringAsFixed(2)}'),
                     ],
                   ),

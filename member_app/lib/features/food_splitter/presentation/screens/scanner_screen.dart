@@ -15,6 +15,7 @@ class ScannerScreen extends ConsumerStatefulWidget {
 class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   final ScannerService _scannerService = ScannerService();
   bool _isLoading = false;
+  bool _isProcessing = false;
 
   Future<void> _pickImage(bool fromCamera) async {
     setState(() => _isLoading = true);
@@ -42,10 +43,14 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   }
 
   void _proceedToOCR() {
+    if (_isProcessing) return;
+    _isProcessing = true;
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const ParsingScreen()),
-    );
+    ).then((_) {
+      if (mounted) _isProcessing = false;
+    });
   }
 
   @override
