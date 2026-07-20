@@ -7,6 +7,7 @@ import '../providers/auth_provider.dart';
 import '../providers/dashboard_provider.dart';
 import '../models/models.dart';
 import 'login_screen.dart';
+import '../features/food_splitter/presentation/screens/scanner_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -317,6 +318,35 @@ class _HomeTab extends StatelessWidget {
               textColor: const Color(0xFF8B2D21),
             ),
           ],
+        ),
+        const SizedBox(height: 24),
+        Text(
+          "Quick Actions",
+          style: GoogleFonts.outfit(
+            fontSize: 15,
+            fontWeight: 600,
+            color: const Color(0xFF1E4620),
+          ),
+        ),
+        const SizedBox(height: 12),
+        ElevatedButton.icon(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ScannerScreen()),
+            );
+          },
+          icon: const Icon(Icons.document_scanner),
+          label: const Text("Scan Food Receipt"),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1E4620),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            alignment: Alignment.center,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
         ),
       ],
     );

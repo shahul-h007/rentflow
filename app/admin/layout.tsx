@@ -18,7 +18,8 @@ import {
   X,
   LogOut,
   Lightbulb,
-  ShoppingCart
+  ShoppingCart,
+  Receipt
 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -32,6 +33,7 @@ const navigation = [
   { name: "Expenses", href: "/admin/expenses", icon: ShoppingCart },
   { name: "Payments", href: "/admin/payments", icon: CreditCard },
   { name: "Settlements", href: "/admin/settlements", icon: ArrowRightLeft },
+  { name: "Food Splitter", href: "/admin/food-splitter", icon: Receipt },
   { name: "Reports", href: "/admin/reports", icon: PieChart },
   { name: "Activity", href: "/admin/activity", icon: Activity },
   { name: "Notifications", href: "/admin/notifications", icon: Bell },
