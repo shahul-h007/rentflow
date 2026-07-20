@@ -5,7 +5,7 @@ import MembersClient from "./MembersClient";
 export const dynamic = "force-dynamic";
 
 export default async function MembersManagement() {
-  let members = [];
+  let members: any[] = [];
   let errorMsg = null;
 
   try {
