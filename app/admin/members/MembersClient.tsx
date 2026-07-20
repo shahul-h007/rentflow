@@ -87,11 +87,13 @@ export default function MembersClient({ members }: { members: any[] }) {
       setProcessingId(id);
       try {
         const res = await resetMemberPassword(id);
-        if (res?.success && res?.password) {
+        if (res?.error) {
+          alert(res.error);
+        } else if (res?.success && res?.password) {
           setGeneratedCredentials({ email: res.email, password: res.password, memberId: id, memberName: name });
         }
       } catch (err: any) {
-        alert(err.message);
+        alert(err.message || "Failed to generate password.");
       } finally {
         setProcessingId(null);
       }

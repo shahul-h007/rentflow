@@ -151,10 +151,10 @@ export async function deleteMember(id: string) {
 
 export async function resetMemberPassword(id: string) {
   const member = await prisma.member.findUnique({ where: { id }, include: { user: true } });
-  if (!member) throw new Error("Member not found");
+  if (!member) return { success: false, error: "Member not found" };
 
   if (!member.email) {
-    throw new Error("This member has no email address. Please click the 'Edit' button to add their email first.");
+    return { success: false, error: "This member has no email address. Please click the 'Edit' button to add their email first." };
   }
 
   // 1. Generate new 8 character password
@@ -174,8 +174,8 @@ export async function resetMemberPassword(id: string) {
     );
     
     if (authError) {
-      console.error(authError);
-      throw new Error(authError.message || "Failed to reset password in Supabase.");
+      console.error("Supabase auth error:", authError);
+      return { success: false, error: authError.message || "Failed to reset password in Supabase." };
     }
     
     // Just update the password in the database
@@ -192,8 +192,8 @@ export async function resetMemberPassword(id: string) {
     });
 
     if (authError || !authData.user) {
-      console.error(authError);
-      throw new Error(authError?.message || "Failed to provision authentication account.");
+      console.error("Supabase create user error:", authError);
+      return { success: false, error: authError?.message || "Failed to provision authentication account." };
     }
 
     // Create the User in Prisma
