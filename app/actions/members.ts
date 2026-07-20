@@ -72,7 +72,7 @@ export async function addMember(data: { name: string; email?: string; phone?: st
   return { success: true, password: generatedPassword };
 }
 
-export async function updateMember(id: string, data: { name: string; email?: string; phone?: string }) {
+export async function updateMember(id: string, data: { name: string; email?: string; phone?: string }): Promise<{success: boolean, error?: string}> {
   const old = await prisma.member.findUnique({ where: { id } });
   
   await prisma.member.update({
@@ -96,7 +96,7 @@ export async function updateMember(id: string, data: { name: string; email?: str
   return { success: true };
 }
 
-export async function toggleMemberStatus(id: string, currentlyActive: boolean) {
+export async function toggleMemberStatus(id: string, currentlyActive: boolean): Promise<{success: boolean, error?: string}> {
   const member = await prisma.member.update({
     where: { id },
     data: { active: !currentlyActive }
