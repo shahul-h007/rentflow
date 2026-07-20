@@ -27,14 +27,18 @@ class ScannerService {
     final splitted = filePath.substring(0, (lastIndex));
     final outPath = "${splitted}_compressed.jpg";
 
-    final XFile? result = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path,
-      outPath,
-      quality: 80,
-      minWidth: 1920,
-      minHeight: 1920,
-    );
-
-    return result != null ? File(result.path) : file;
+    try {
+      final XFile? result = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        outPath,
+        quality: 80,
+        minWidth: 1920,
+        minHeight: 1920,
+      );
+      return result != null ? File(result.path) : file;
+    } catch (e) {
+      // Fallback for unsupported platforms like Windows
+      return file;
+    }
   }
 }
